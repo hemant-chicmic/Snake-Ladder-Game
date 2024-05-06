@@ -2,7 +2,7 @@
   "ver": "1.0.25",
   "importer": "image",
   "imported": true,
-  "uuid": "9d840234-a2ab-4e29-981a-6c36653bf161",
+  "uuid": "81fbff85-dc55-4a2c-8b89-bdc91d5e58e5",
   "files": [
     ".json",
     ".png"
@@ -10,14 +10,14 @@
   "subMetas": {
     "6c48a": {
       "importer": "texture",
-      "uuid": "9d840234-a2ab-4e29-981a-6c36653bf161@6c48a",
-      "displayName": "SN5",
+      "uuid": "81fbff85-dc55-4a2c-8b89-bdc91d5e58e5@6c48a",
+      "displayName": "BGsnakeLadderGame",
       "id": "6c48a",
       "name": "texture",
       "userData": {
         "wrapModeS": "clamp-to-edge",
         "wrapModeT": "clamp-to-edge",
-        "imageUuidOrDatabaseUri": "9d840234-a2ab-4e29-981a-6c36653bf161",
+        "imageUuidOrDatabaseUri": "81fbff85-dc55-4a2c-8b89-bdc91d5e58e5",
         "isUuid": true,
         "visible": false,
         "minfilter": "linear",
@@ -34,8 +34,8 @@
     },
     "f9941": {
       "importer": "sprite-frame",
-      "uuid": "9d840234-a2ab-4e29-981a-6c36653bf161@f9941",
-      "displayName": "SN5",
+      "uuid": "81fbff85-dc55-4a2c-8b89-bdc91d5e58e5@f9941",
+      "displayName": "BGsnakeLadderGame",
       "id": "f9941",
       "name": "spriteFrame",
       "userData": {
@@ -46,12 +46,12 @@
         "offsetY": 0,
         "trimX": 0,
         "trimY": 0,
-        "width": 84,
-        "height": 200,
-        "rawWidth": 84,
-        "rawHeight": 200,
-        "borderTop": 26,
-        "borderBottom": 50,
+        "width": 1920,
+        "height": 1419,
+        "rawWidth": 1920,
+        "rawHeight": 1419,
+        "borderTop": 0,
+        "borderBottom": 0,
         "borderLeft": 0,
         "borderRight": 0,
         "packable": true,
@@ -61,17 +61,17 @@
         "meshType": 0,
         "vertices": {
           "rawPosition": [
-            -42,
-            -100,
+            -960,
+            -709.5,
             0,
-            42,
-            -100,
+            960,
+            -709.5,
             0,
-            -42,
-            100,
+            -960,
+            709.5,
             0,
-            42,
-            100,
+            960,
+            709.5,
             0
           ],
           "indexes": [
@@ -84,12 +84,12 @@
           ],
           "uv": [
             0,
-            200,
-            84,
-            200,
+            1419,
+            1920,
+            1419,
             0,
             0,
-            84,
+            1920,
             0
           ],
           "nuv": [
@@ -103,18 +103,18 @@
             1
           ],
           "minPos": [
-            -42,
-            -100,
+            -960,
+            -709.5,
             0
           ],
           "maxPos": [
-            42,
-            100,
+            960,
+            709.5,
             0
           ]
         },
         "isUuid": true,
-        "imageUuidOrDatabaseUri": "9d840234-a2ab-4e29-981a-6c36653bf161@6c48a",
+        "imageUuidOrDatabaseUri": "81fbff85-dc55-4a2c-8b89-bdc91d5e58e5@6c48a",
         "atlasUuid": ""
       },
       "ver": "1.0.11",
@@ -129,6 +129,6 @@
     "type": "sprite-frame",
     "fixAlphaTransparencyArtifacts": true,
     "hasAlpha": true,
-    "redirect": "9d840234-a2ab-4e29-981a-6c36653bf161@f9941"
+    "redirect": "81fbff85-dc55-4a2c-8b89-bdc91d5e58e5@f9941"
   }
 }
