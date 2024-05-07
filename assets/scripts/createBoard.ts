@@ -1,9 +1,10 @@
-import { _decorator, AudioSource, Component, director, EditBox, HorizontalTextAlignment, instantiate, Intersection2D, Layout, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
+import { _decorator, AudioSource, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
 import { setCell } from './setCell';
 const { ccclass, property } = _decorator;
 
 @ccclass('createBoard')
 export class createBoard extends Component {
+
 
 
     @property( {type : Prefab} )
@@ -21,7 +22,18 @@ export class createBoard extends Component {
     @property({type :Node})
     player1Img : Node | null = null ;
     @property({type :Node})
+    player1ArrowImg : Node | null = null ;
+    @property({type :Node})
     player2Img : Node | null = null ;
+    @property({type :Node})
+    player2ArrowImg : Node | null = null ;
+    
+    
+    
+    @property({type :Node})
+    OffAudio_icon : Node | null = null ;
+    @property({type :Node})
+    OnAudio_icon : Node | null = null ;
 
 
 
@@ -31,22 +43,48 @@ export class createBoard extends Component {
     //
     //
     @property( {type : Prefab} )
+    ladderPartPrefab : Prefab | null = null ;
+    
+    @property( {type : Prefab} )
     snakePrefab : Prefab | null = null ;
 
 
-    @property( {type : Prefab} )
-    ladderPartPrefab : Prefab | null = null ;
+    @property( {type : Node} )
+    allLadders : Node | null = null ;
+
+    @property( {type : Node} )
+    allsnakes : Node | null = null ;
 
 
-    private backgroundMusic: AudioSource | null = null; 
+
+    @property( {type : AudioSource} )
+    backgroundMusic: AudioSource | null = null; 
+    @property( {type : AudioSource} )
+    playerMoveMusic: AudioSource | null = null; 
+    @property( {type : AudioSource} )
+    diceRollMusic: AudioSource | null = null; 
+    @property( {type : AudioSource} )
+    ladderClimbMusic: AudioSource | null = null; 
+    @property( {type : AudioSource} )
+    snakeBiteMusic: AudioSource | null = null; 
+    @property( {type : AudioSource} )
+    firstSixSound: AudioSource | null = null; 
     
 
+    private player0thPosition : number = 0 ;
 
-    private player1CurrCell : number = 0 ;
+    // private player1Color : number  ;
+    // private player2Color : number ;
+    private player1CurrCell : number = -1 ;
     private player2CurrCell : number = -1 ;
+    private player1SixCount : number = 0 ;
+    private player2SixCount : number = 0 ;
+    private player1SixPrevCell : number = 0 ;
+    private player2SixPrevCell : number = 0 ;
     private player1Turn : boolean = true ;
     private player2Turn : boolean = false ;
     private isAnimating : boolean = false ;
+    private isArrowAnimating : boolean = false ;
     private totalLadders : number = 0 ;
     private totalSnakes : number = 0 ;
 
@@ -56,17 +94,36 @@ export class createBoard extends Component {
     private cellNodesMap: Map<string, Node> = new Map();
     private ladderTopCellsExits: number[] = new Array(100);
     private ladderBottomCellsExits: number[] = new Array(100);
+    private snakeTopCellsExits: number[] = new Array(100);
+    private snakeBottomCellsExits: number[] = new Array(100);
     // private allLadder: Node[] = new Array();  // // //  for bounding box  
     
     
 
+    OnOffMusicButton()
+    {
+        if( this.backgroundMusic.playing ) this.backgroundMusic.stop() ;
+        else this.backgroundMusic.play() ;
+
+        if( this.OnAudio_icon.active )
+        {
+            this.OnAudio_icon.active = false ;
+            this.OffAudio_icon.active = true ;
+        }
+        else
+        {
+            this.OnAudio_icon.active = true ;
+            this.OffAudio_icon.active = false ;
+        }
+    }
+    
+
+
     start( ) 
     {
-        console.log( " strt main scene screate board" ) ;
-        this.backgroundMusic = this.node.getComponent(AudioSource);
-        
-        this.cellNodesMap.set(this.player1CurrCell.toString(), this.player1Img);
-        this.cellNodesMap.set(this.player2CurrCell.toString(), this.player2Img);
+        console.log( " strt main scene screate board" ) ;        
+        this.cellNodesMap.set(this.player0thPosition.toString(), this.player1Img);
+        this.cellNodesMap.set(this.player0thPosition.toString(), this.player2Img);
         let cellNo = 1 ;
         for (let i = 0; i < 10; i++) 
         {
@@ -87,17 +144,15 @@ export class createBoard extends Component {
         // console.log( "1 board base " , this.node.getComponent(UITransform).contentSize)
         this.node.getComponent(Layout).updateLayout(true);
         // console.log( "2 board base " , this.node.getComponent(UITransform).contentSize)
-        this.player1CurrCell = 0 ;
-        this.player2CurrCell = 0 ;
 
 
         // //  now add the ladders after getting the input from the secondScreen
         // //  now add the ladders after getting the input from the secondScreen
-        // for(let i=0; i<this.totalLadders; i++)
-        // {
-        //     console.log( "another " ) ;
-        //     this.addLaddersToBoard() ;
-        // }
+        for(let i=0; i<this.totalLadders; i++)
+        {
+            console.log( "another " ) ;
+            this.addLaddersToBoard() ;
+        }
 
 
         // //  now add the snakes after getting the input from the secondScreen
@@ -109,28 +164,79 @@ export class createBoard extends Component {
         }
 
 
+
+        this.ArrowplayerAnimation() ;
+        this.player2ArrowImg.active = false ;
     }
+
+
+
+
+    takeInputFromSecondScreen( ladderInputFromSecondScreen : number , snakeInputFromSecondScreen : number  )
+    {
+        this.totalLadders = ladderInputFromSecondScreen ;
+        this.totalSnakes = snakeInputFromSecondScreen ;
+
+
+        // console.log( " take take input from second screen " ) ;
+        // console.log( ladderInputFromSecondScreen , "  ladder " , snakeInputFromSecondScreen ) ;
+        // console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
+    }
+
+
+
+    ArrowplayerAnimation(  )
+    {
+        let player1CurrPositionX = this.player1ArrowImg.position.x ;
+        let player1CurrPositionY = this.player1ArrowImg.position.y ;
+        this.isArrowAnimating = true ;
+        tween(this.player1ArrowImg)
+        .to(0.5 ,{ position: new Vec3( player1CurrPositionX , player1CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
+        .to(0.5, { position: new Vec3( player1CurrPositionX , player1CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
+            easing: 'quadInOut',
+            onComplete: () => { 
+                
+            }
+        })
+        .start();
+        let player2CurrPositionX = this.player2ArrowImg.position.x ;
+        let player2CurrPositionY = this.player2ArrowImg.position.y ;
+        tween(this.player2ArrowImg)
+        .to(0.5 ,{ position: new Vec3( player2CurrPositionX , player2CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
+        .to(0.5, { position: new Vec3( player2CurrPositionX , player2CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
+            easing: 'quadInOut',
+            onComplete: () => { 
+                this.isArrowAnimating = false ;
+            }
+        })
+        .start();
+    }
+
+
+
 
 
 
     update(deltaTime: number) 
     {
-        
+        if( ! this.isArrowAnimating )
+        {
+            this.ArrowplayerAnimation() ;
+        }
     }
 
 
-   
 
-    takeInputFromSecondScreen( ladderInputFromSecondScreen : number , snakeInputFromSecondScreen : number)
+
+    
+    checkLadderAndSnake( topCell : number , bottomCell : number ) : boolean
     {
-        this.totalLadders = ladderInputFromSecondScreen ;
-        this.totalSnakes = snakeInputFromSecondScreen ;
-
-        console.log( " take take input from second screen " ) ;
-        console.log( ladderInputFromSecondScreen , "  ladder " , snakeInputFromSecondScreen ) ;
-        console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
+        if( this.ladderTopCellsExits[topCell] || this.ladderBottomCellsExits[bottomCell] ) return true ;
+        if( this.ladderTopCellsExits[bottomCell] || this.ladderBottomCellsExits[topCell] ) return true ;
+        if( this.snakeTopCellsExits[topCell] || this.snakeBottomCellsExits[bottomCell] ) return true ;
+        if( this.snakeTopCellsExits[bottomCell] || this.snakeBottomCellsExits[topCell] ) return true ;
+        return false ;
     }
-
 
     addLaddersToBoard()
     {
@@ -139,7 +245,7 @@ export class createBoard extends Component {
         let cell2 = randomRangeInt(1,100) ;
         let topCell = Math.max(cell1, cell2);
         let bottomCell = Math.min(cell1, cell2);
-        while( Math.abs(cell1 - cell2 ) <= 10  ||  this.ladderTopCellsExits[topCell] || this.ladderBottomCellsExits[bottomCell] )
+        while( Math.abs(cell1 - cell2 ) <= 10  || this.checkLadderAndSnake(topCell , bottomCell) )
         {
             cell1 = randomRangeInt(1,100) ;
             cell2 = randomRangeInt(1, 100); 
@@ -207,7 +313,8 @@ export class createBoard extends Component {
         fullLadderNode.getComponent(UITransform).setAnchorPoint(new Vec2(0.5 , 0)) ;
         fullLadderNode.eulerAngles = new Vec3(0, 0, -(90-angleDegrees));
         fullLadderNode.setPosition(bottomcellPositionWorld) ;
-        this.node.parent.addChild(fullLadderNode) ;
+        // this.node.parent.addChild(fullLadderNode) ;
+        this.allLadders.addChild(fullLadderNode) ;
 
         // // code so that all ladders placed without collision
         // const fullLadderBoundingBox = fullLadderNode.getComponent(UITransform).getBoundingBoxToWorld();
@@ -247,7 +354,7 @@ export class createBoard extends Component {
         let cell2 = randomRangeInt(1,100) ;
         let topCell = Math.max(cell1, cell2);
         let bottomCell = Math.min(cell1, cell2);
-        while( Math.abs(cell1 - cell2 ) <= 10  )
+        while( Math.abs(cell1 - cell2 ) <= 10 || this.checkLadderAndSnake(topCell , bottomCell) )
         {
             cell1 = randomRangeInt(1,100) ;
             cell2 = randomRangeInt(1, 100); 
@@ -258,10 +365,12 @@ export class createBoard extends Component {
         // bottomCell = 3;
         // topCell = 86;
         // bottomCell = 22;
-        // topCell = 83;
-        // bottomCell = 37;
-        this.ladderTopCellsExits[topCell] = bottomCell ;
-        this.ladderBottomCellsExits[bottomCell] = topCell ;
+        // topCell = 6;
+        // bottomCell = 2;
+
+
+        this.snakeTopCellsExits[topCell] = bottomCell ;
+        this.snakeBottomCellsExits[bottomCell] = topCell ;
 
 
         console.log( "sntop " , topCell , "snbottom " , bottomCell ) ;
@@ -278,8 +387,9 @@ export class createBoard extends Component {
         // console.log( "5dx hjngjgjgjh ") ;
         // console.log( "ps tp => " , topcellPositionWorld.x , "dy=> ", topcellPositionWorld.y ) ;
         // console.log( "ps bt => " , bottomcellPositionWorld.x , "dy=> ", bottomcellPositionWorld.y ) ;
-        // console.log( "dx => " , dx , "dy=> ", dy ) ;
+        console.log( "dx => " , dx , "dy=> ", dy ) ;
         let distance = Math.sqrt(dx * dx + dy * dy );
+        console.log( "dis  " , distance , "  in integer " , Math.floor(distance) ) ;
         // // angle from bottom to top
         let angleRadians = Math.atan2(dy, dx);
         let angleDegrees = angleRadians * (180 / Math.PI)  ;
@@ -292,13 +402,19 @@ export class createBoard extends Component {
         
         let fullSnakeNode = instantiate(this.snakePrefab) ;
         let fullSnakeNodeWidth = fullSnakeNode.getComponent(Sprite).spriteFrame.width ;
-        fullSnakeNode.getComponent(UITransform).setContentSize( fullSnakeNodeWidth  , distance ) ;
+        fullSnakeNode.getComponent(UITransform).setContentSize( fullSnakeNodeWidth  , Math.floor(distance) ) ;
 
+        const randomR = Math.random() * 255;
+        const randomG = Math.random() * 255;
+        const randomB = Math.random() * 255;
+        const randomColor = new Color(randomR, randomG, randomB);
+        fullSnakeNode.getComponent(Sprite).color = randomColor;
 
         fullSnakeNode.getComponent(UITransform).setAnchorPoint(new Vec2(0 , 0)) ;
         fullSnakeNode.eulerAngles = new Vec3(0, 0, -(90-angleDegrees));
         fullSnakeNode.setPosition(bottomcellPositionWorld) ;
-        this.node.parent.addChild(fullSnakeNode) ;
+        // this.node.parent.addChild(fullSnakeNode) ;
+        this.allsnakes.addChild(fullSnakeNode) ;
 
     }
 
@@ -315,38 +431,124 @@ export class createBoard extends Component {
 
 
 
+    threeSixAnimation( playerImg : Node , playerCurrCell : number, playerPrevCell : number, playerindex : number  )
+    {
+        this.playerMoveMusic.play();
+        console.log( " three six animation funciton " ) ;
+        if( playerindex == 1 ) this.player1CurrCell = playerCurrCell ;
+        else this.player2CurrCell = playerCurrCell ;
+        let playerCurrCellPositionX = playerImg.position.x ;
+        let playerCurrCellPositionY = playerImg.position.y ;
+        let posNode=this.cellNodesMap.get(playerCurrCell.toString())
+        let worldpos = posNode.getWorldPosition(); 
+        let NextCellPosition=  this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(worldpos);
+        let NextCellPositionX =  NextCellPosition.x;
+        let NextCellPositionY =  NextCellPosition.y;
+        console.log( "currCell " , playerCurrCell ) ;
+        tween(playerImg)
+        .to(0.2 ,{ position: new Vec3(playerCurrCellPositionX , playerCurrCellPositionY + 10) } )
+        .to(0.5 ,{ position: new Vec3(NextCellPositionX , NextCellPositionY + 10) } )
+        .to(0.2, { position: NextCellPosition }, {
+            easing: 'quadInOut',
+            
+            onComplete: () => { 
+                this.playerMoveMusic.stop();
+                if( playerCurrCell == playerPrevCell || playerCurrCell == 1 )
+                {
+                    this.isAnimating = false ;
+                    return ;
+                }
+                this.threeSixAnimation( playerImg , playerCurrCell-1 , playerPrevCell , playerindex ) ;
+            }
+        })
+        .start();
+    }
 
 
-
-
-
-    player1rollDiceRandomaly()
+    RollDiceRandomaly()
     {
         if( this.isAnimating )
         {
             window.alert(" Player is currently playing ") ;
             return ;
         }
-        if( ! this.player1Turn  )
+        let randomNumber = Math.floor(Math.random() * 6) + 1 ;
+        this.diceImg.getComponent(Sprite).spriteFrame = this.diceImgArray[randomNumber-1] ;
+        if(this.player1Turn  )
         {
-            window.alert(" It's Player 2 Turn ") ;
+            this.player1rollDiceRandomaly(randomNumber) ;
+        }
+        else this.player2rollDiceRandomaly(randomNumber) ;
+    }
+
+
+    player1rollDiceRandomaly(randomNumber : number)
+    {
+        
+        // if( ! this.player1Turn  )
+        // {
+        //     window.alert(" It's Player 2 Turn ") ;
+        //     return ;
+        // }
+        this.diceRollMusic.play();
+        
+        
+        console.log( " player 1 roll dice randomly => " ) ;
+        if( this.player1CurrCell == -1  &&  randomNumber != 6 )
+        {
+            this.player1ArrowImg.active = false ;
+            this.player2ArrowImg.active = true ;
+            this.player1Turn = false ;
+            this.player2Turn = true ;
+            console.log( " no move until 6 comes" ) ;
             return ;
         }
-        // this.backgroundMusic.play();
+        if( this.player1CurrCell == -1  && randomNumber == 6 )
+        {
+            this.player1CurrCell = 0 ;
+            console.log( " ready to play ") ;
+            this.firstSixSound.play() ;
+            return ;
+        }
         this.isAnimating = true ;
-        this.player1Turn = false ;
-        this.player2Turn = true ;
-        console.log( " player 1 roll dice randomly => " ) ;
-        let randomNumber = Math.floor(Math.random() * 6);
-        this.diceImg.getComponent(Sprite).spriteFrame = this.diceImgArray[randomNumber] ;
+        if( randomNumber == 6 )
+        {
+            this.player1SixCount ++ ;
+            if( this.player1SixCount == 1 ) this.player1SixPrevCell = this.player1CurrCell ;
+            else if( this.player1SixCount == 3 ) 
+            {
+                console.log(this.player1CurrCell , " strt three six animation " , this.player1SixPrevCell ) ;
+                this.threeSixAnimation(this.player1Img , this.player1CurrCell-1 , this.player1SixPrevCell  , 1 ) ;
+                this.player1Turn = false ;
+                this.player2Turn = true ;
+                this.player1SixCount = 0 ;
+                this.player1SixPrevCell =0 ;
+                return ;
+            }
+        }
+        else
+        {
+            this.player1Turn = false ;
+            this.player2Turn = true ;
+            this.player1SixCount = 0 ;
+            this.player1SixPrevCell =0 ;
+        }
+        // this.diceRollMusic.stop();
+        // this.scheduleOnce(() => {
+        //     this.diceRollMusic.stop();
+        // }, 0.5);
         this.scheduleOnce(() => {
-            this.movePlayer1(randomNumber+1) ;
-            // this.movePlayer1(3) ;
+            this.diceRollMusic.stop();
+            this.scheduleOnce(() => {
+                this.player1ArrowImg.active = false ;
+                this.movePlayer1(randomNumber) ;
+                // this.movePlayer1(6) ;
+            }, 0.3);
         }, 0.5);
         
     }
 
-    player2rollDiceRandomaly()
+    player2rollDiceRandomaly( randomNumber : number )
     {
         if( this.isAnimating )
         {
@@ -358,16 +560,58 @@ export class createBoard extends Component {
             window.alert(" It's Player 1 Turn ") ;
             return ;
         }
-        // this.backgroundMusic.play();
-        this.isAnimating = true ;
-        this.player2Turn = false ;
-        this.player1Turn = true ;
+        this.diceRollMusic.play();
         console.log( " player 2 roll dice randomly => " ) ;
-        let randomNumber = Math.floor(Math.random() * 6);
-        this.diceImg.getComponent(Sprite).spriteFrame = this.diceImgArray[randomNumber] ;
+        if( this.player2CurrCell == -1  &&  randomNumber != 6 )
+        {
+            this.player2ArrowImg.active = false ;
+            this.player1ArrowImg.active = true ;
+            this.player2Turn = false ;
+            this.player1Turn = true ;
+            console.log( " no move until 6 comes" ) ;
+            return ;
+        }
+        if( this.player2CurrCell == -1  && randomNumber == 6 )
+        {
+            this.player2CurrCell = 0 ;
+            console.log( " ready to play ") ;
+            this.firstSixSound.play() ;
+            return ;
+        }
+        this.isAnimating = true ;
+        if( randomNumber == 6 )
+        {
+            this.player2SixCount ++ ;
+            if( this.player2SixCount == 1 ) this.player2SixPrevCell = this.player2CurrCell ;
+            else if( this.player2SixCount == 3 ) 
+            {
+                console.log(this.player2CurrCell , " strt three six animation " , this.player2SixPrevCell ) ;
+                this.threeSixAnimation(this.player2Img , this.player2CurrCell-1 , this.player2SixPrevCell  , 1 ) ;
+                this.player2Turn = false ;
+                this.player1Turn = true ;
+                this.player2SixCount = 0 ;
+                this.player2SixPrevCell =0 ;
+                return ;
+            }
+        }
+        else
+        {
+            this.player2Turn = false ;
+            this.player1Turn = true ;
+            this.player2SixCount = 0 ;
+            this.player2SixPrevCell =0 ;
+        }
+        // this.diceRollMusic.stop();
+        // this.scheduleOnce(() => {
+        //     this.diceRollMusic.stop();
+        // }, 0.5);
         this.scheduleOnce(() => {
-            this.movePlayer2(randomNumber+1) ;
-            // this.movePlayer2(3) ;
+            this.diceRollMusic.stop();
+            this.scheduleOnce(() => {
+                this.player2ArrowImg.active = false ;
+                this.movePlayer2(randomNumber) ;
+                // this.movePlayer2(6) ;
+            }, 0.3);
         }, 0.5);
     }
 
@@ -413,24 +657,52 @@ export class createBoard extends Component {
         }
         if( currCell > finalCell ) 
         {
-            this.backgroundMusic.stop();
+            if( playerindex == 1 && this.player1SixCount == 0 )
+            {
+                this.player1ArrowImg.active = false ;
+                this.player2ArrowImg.active = true ;
+            }
+            else if( playerindex == 2 && this.player2SixCount == 0 )
+            {
+                this.player2ArrowImg.active = false ;
+                this.player1ArrowImg.active = true ;
+            }
+            this.playerMoveMusic.stop();
             this.isAnimating = false ;
             console.log( " final curr  cell " , currCell-1 ) ;
-            if( this.ladderBottomCellsExits[currCell-1] ) this.playerLadderMoveAnimation( playerImg  , currCell-1 , playerindex ) ;
+            if( this.ladderBottomCellsExits[currCell-1] ) this.playerLadderClimbAnimation( playerImg  , currCell-1 , playerindex ) ;
+            if( this.snakeTopCellsExits[currCell-1] ) this.playerSnakeBiteAnimation( playerImg  , currCell-1 , playerindex ) ;
+            if( this.player1CurrCell == this.player2CurrCell )
+            {
+                let playerCurrCellPositionX = playerImg.position.x ;
+                let playerCurrCellPositionY = playerImg.position.y ;
+                tween(playerImg)
+                .to(0.2, { position : new Vec3(playerCurrCellPositionX+10, playerCurrCellPositionY+10, 0) }, {
+                    easing: 'quadInOut',
+                    onComplete: () => { 
+                    }
+                }).start() ;
+            }
             return ;
         }
-        this.backgroundMusic.play();
+        this.playerMoveMusic.play();
         if( playerindex == 1 ) this.player1CurrCell = currCell ;
         else this.player2CurrCell = currCell ;
         let posNode=this.cellNodesMap.get(currCell.toString())
         let worldpos = posNode.getWorldPosition(); 
         let NextCellPosition=  this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(worldpos);
+        let NextCellPositionX =  NextCellPosition.x;
+        let NextCellPositionY =  NextCellPosition.y;
 
+        let playerCurrCellPositionX = playerImg.position.x ;
+        let playerCurrCellPositionY = playerImg.position.y ;
         tween(playerImg)
-        .to(1, { position: NextCellPosition }, {
+        .to(0.2 ,{ position: new Vec3(playerCurrCellPositionX , playerCurrCellPositionY + 10) } )
+        .to(0.5 ,{ position: new Vec3(NextCellPositionX , NextCellPositionY + 10) } )
+        .to(0.2, { position: NextCellPosition }, {
             easing: 'quadInOut',
             onComplete: () => { 
-                this.backgroundMusic.stop();
+                this.playerMoveMusic.stop();
                 if( currCell == finalCell && finalCell == 100 )
                 {   
                     window.alert(` Player ${playerindex} is winner `) ;
@@ -449,11 +721,11 @@ export class createBoard extends Component {
     {
         if( remainingSteps == 0 )
         {
-            this.backgroundMusic.stop();
+            this.playerMoveMusic.stop();
             this.isAnimating = false ;
             return ;
         }
-        this.backgroundMusic.play();
+        this.playerMoveMusic.play();
         if( playerindex == 1 ) this.player1CurrCell = currCell ;
         else this.player2CurrCell = currCell ;
         //
@@ -466,16 +738,16 @@ export class createBoard extends Component {
             easing: 'quadInOut',
             
             onComplete: () => { 
-                this.backgroundMusic.stop();
+                this.playerMoveMusic.stop();
                 this.ifLastCell( playerImg , currCell-1 , remainingSteps-1 , playerindex ) ;
             }
         })
         .start();
     }
 
-    playerLadderMoveAnimation(  playerImg : Node , playerCell : number, playerindex : number )
+    playerLadderClimbAnimation(  playerImg : Node , playerCell : number, playerindex : number )
     {
-        this.backgroundMusic.play();
+        this.ladderClimbMusic.play();
         console.log( " Player ladder move animation ") ;
         this.isAnimating = true ;
         let laddeBottomCell = playerCell ;
@@ -493,7 +765,7 @@ export class createBoard extends Component {
             onComplete: () => { 
                 console.log( " Player ladder move animation ") ;
                 this.isAnimating = false ;
-                this.backgroundMusic.stop();
+                this.ladderClimbMusic.stop();
                 if( laddeTopCell == 100 )
                 {   
                     window.alert(` Player ${playerindex} is winner `) ;
@@ -504,13 +776,61 @@ export class createBoard extends Component {
                 }
                 if( playerindex == 1 ) this.player1CurrCell = laddeTopCell ;
                 else this.player2CurrCell = laddeTopCell ;
+                if( this.player1CurrCell == this.player2CurrCell )
+                {
+                    let playerCurrCellPositionX = playerImg.position.x ;
+                    let playerCurrCellPositionY = playerImg.position.y ;
+                    tween(playerImg)
+                    .to(0.2, { position : new Vec3(playerCurrCellPositionX+10, playerCurrCellPositionY+10, 0) }, {
+                        easing: 'quadInOut',
+                        onComplete: () => { 
+                        }
+                    }).start() ;
+                }
             }
         }).start() ;
     }
   
 
     
-    
+    playerSnakeBiteAnimation( playerImg : Node , playerCell : number, playerindex : number   )
+    {
+        console.log( " Player snake bite animation ") ;
+        this.snakeBiteMusic.play();
+        this.isAnimating = true ;
+        let snakeTopCell = playerCell ;
+        let snakeBottomCell = this.snakeTopCellsExits[playerCell] ;
+        let snakeBottomCellPosition = this.cellNodesMap.get(snakeBottomCell.toString()).getWorldPosition() ;
+        let snakeBottomCellWorldPosition = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(snakeBottomCellPosition);
+        // if( playerindex == 1 ) this.player1CurrCell = laddeTopCell ;
+        // else this.player2CurrCell = laddeTopCell ;
+        console.log( "bot => " , snakeBottomCell , "top => " , snakeTopCell ) ;
+        tween(playerImg)
+        .to(0.3, { scale: new Vec3(1.1, 1.1, 1.1) })
+        .to(1, { scale: new Vec3(0, 0, 0) })
+        .to(1, { position: snakeBottomCellWorldPosition  } )
+        .to(0.5, { scale : new Vec3(1, 1, 1) }, {
+            easing: 'quadInOut',
+            onComplete: () => { 
+                console.log( " Player snake bite move animation ") ;
+                this.isAnimating = false ;
+                this.snakeBiteMusic.stop();
+                if( playerindex == 1 ) this.player1CurrCell = snakeBottomCell ;
+                else this.player2CurrCell = snakeBottomCell ;
+                if( this.player1CurrCell == this.player2CurrCell )
+                {
+                    let playerCurrCellPositionX = playerImg.position.x ;
+                    let playerCurrCellPositionY = playerImg.position.y ;
+                    tween(playerImg)
+                    .to(0.2, { position : new Vec3(playerCurrCellPositionX+10, playerCurrCellPositionY+10, 0) }, {
+                        easing: 'quadInOut',
+                        onComplete: () => { 
+                        }
+                    }).start() ;
+                }
+            }
+        }).start() ;
+    }
 
     
 
