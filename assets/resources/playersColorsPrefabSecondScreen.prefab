@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.Prefab",
-    "_name": "snakePrefab",
+    "_name": "playersColorsPrefabSecondScreen",
     "_objFlags": 0,
     "_native": "",
     "data": {
@@ -12,7 +12,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "snakePrefab",
+    "_name": "playersColorsPrefabSecondScreen",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": null,
@@ -71,19 +71,19 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 42,
-      "height": 100
+      "width": 40,
+      "height": 120
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
-      "x": 0,
-      "y": 0
+      "x": 0.5,
+      "y": 0.5
     },
     "_id": ""
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "fbhORn0WRAIJOQSSZuLmEa"
+    "fileId": "7dZrUaNatE3Y5E/MpycNcY"
   },
   {
     "__type__": "cc.Sprite",
@@ -102,17 +102,17 @@
     "_color": {
       "__type__": "cc.Color",
       "r": 255,
-      "g": 245,
-      "b": 0,
+      "g": 255,
+      "b": 255,
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "9d840234-a2ab-4e29-981a-6c36653bf161@f9941",
+      "__uuid__": "d444e963-2416-4050-933c-022f20ed7e77@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
-    "_type": 2,
+    "_type": 0,
     "_fillType": 0,
-    "_sizeMode": 2,
+    "_sizeMode": 0,
     "_fillCenter": {
       "__type__": "cc.Vec2",
       "x": 0,
@@ -127,7 +127,7 @@
   },
   {
     "__type__": "cc.CompPrefabInfo",
-    "fileId": "70A9ihiwFPd6EGnngTLHoS"
+    "fileId": "ebmTg5o1hGDrUlVLX8R1Em"
   },
   {
     "__type__": "cc.PrefabInfo",

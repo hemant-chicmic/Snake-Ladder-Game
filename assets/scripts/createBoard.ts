@@ -1,4 +1,4 @@
-import { _decorator, AudioSource, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
+import { _decorator, AudioSource, Button, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
 import { setCell } from './setCell';
 const { ccclass, property } = _decorator;
 
@@ -14,9 +14,10 @@ export class createBoard extends Component {
 
     @property({ type: [SpriteFrame] })
     diceImgArray: SpriteFrame[] = [];
-    
     @property({type :Node})
     diceImg : Node | null = null ;
+    @property({type :Button})
+    rollDiceButton : Button | null = null ;
 
 
     @property({type :Node})
@@ -36,7 +37,10 @@ export class createBoard extends Component {
     OnAudio_icon : Node | null = null ;
 
 
-
+    @property({type : Node})
+    BGblackWhenSettingsOpen : Node | null = null ;
+    @property({type : Node})
+    settingsImgButtom : Node | null = null ;
     // @property( {type : Prefab} )
     // ladderPrefab : Prefab | null = null ;
     // // // use it in the function addLaddersToBoard in 2nd way od making fullLadder
@@ -44,14 +48,12 @@ export class createBoard extends Component {
     //
     @property( {type : Prefab} )
     ladderPartPrefab : Prefab | null = null ;
-    
     @property( {type : Prefab} )
     snakePrefab : Prefab | null = null ;
 
 
     @property( {type : Node} )
     allLadders : Node | null = null ;
-
     @property( {type : Node} )
     allsnakes : Node | null = null ;
 
@@ -68,7 +70,7 @@ export class createBoard extends Component {
     @property( {type : AudioSource} )
     snakeBiteMusic: AudioSource | null = null; 
     @property( {type : AudioSource} )
-    firstSixSound: AudioSource | null = null; 
+    firstSixSound_GetReady: AudioSource | null = null; 
     
 
     private player0thPosition : number = 0 ;
@@ -87,6 +89,7 @@ export class createBoard extends Component {
     private isArrowAnimating : boolean = false ;
     private totalLadders : number = 0 ;
     private totalSnakes : number = 0 ;
+    private isSettingOpens : boolean = false ;
 
 
 
@@ -99,6 +102,58 @@ export class createBoard extends Component {
     // private allLadder: Node[] = new Array();  // // //  for bounding box  
     
     
+
+    private player1 : Node ;
+    private player2 : Node ;
+
+    settingsButtom()
+    {
+        console.log( " settigns button " ) ;
+        let settingLayout = this.settingsImgButtom.getComponent(Layout) ;
+        if( ! this.isSettingOpens  )
+        {
+            console.log( " vertcal " ) ;
+            settingLayout.type = Layout.Type.VERTICAL  ;
+            settingLayout.verticalDirection = Layout.VerticalDirection.TOP_TO_BOTTOM ;
+            let spacing = 10 ;
+            settingLayout.paddingTop = this.settingsImgButtom.height + spacing  ;
+            settingLayout.spacingY = spacing ;
+            this.settingsImgButtom.children.forEach( ( child , index ) => {
+                child.active = true ;
+            } )
+            this.isSettingOpens = true; 
+            this.BGblackWhenSettingsOpen.active = true ;
+            this.scheduleOnce( () => {
+                director.pause() ;
+            } , 0.1 )
+        }
+        else
+        {
+            director.resume() ;
+            this.BGblackWhenSettingsOpen.active = false ;
+            this.isSettingOpens = false; 
+            // console.log( " none" ) ;
+            settingLayout.type = Layout.Type.NONE  ;
+            this.settingsImgButtom.children.forEach( (child) => {
+                child.setPosition( new Vec3(0,0,0) ) ;
+                child.active = false ;
+            } )
+        }
+    }
+
+    
+    restartGameToSecondScreen()
+    {
+        console.log( "restart Game To Second Screen" ) ;
+        Tween.stopAll() ;
+        director.loadScene('secondScene') ;
+    }
+    exitGameToFirstScreen()
+    {
+        console.log( "exit screen first screen" ) ;
+        Tween.stopAll() ;
+        director.loadScene('firstScene') ;
+    }
 
     OnOffMusicButton()
     {
@@ -119,11 +174,44 @@ export class createBoard extends Component {
     
 
 
+    takeInputFromSecondScreen( pl1Img:Node , pl2Img:Node , ladderInputFromSecondScreen : number , snakeInputFromSecondScreen : number  )
+    {
+        this.totalLadders = ladderInputFromSecondScreen ;
+        this.totalSnakes = snakeInputFromSecondScreen ;
+        console.log( " take take input from second screen " ) ;
+
+        // this.node.parent.addChild(pl1Img);
+        // this.node.parent.addChild(pl2Img);
+        console.log("Img",pl1Img,pl2Img)
+        // this.player1 = pl1Img ;
+        // this.player2 = pl2Img ;
+
+
+        // console.log( ladderInputFromSecondScreen , "  ladder " , snakeInputFromSecondScreen ) ;
+        // console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
+    }
+
+
+
+
+
+
+
     start( ) 
     {
-        console.log( " strt main scene screate board" ) ;        
+        // this.scheduleOnce( () => {
+        //     this.player1Img.getComponent(Sprite).spriteFrame = this.player1 ;
+        //     this.player2Img.getComponent(Sprite).spriteFrame = this.player2 ;
+            
+        // } , 2 )
+        console.log( " strt main scene screate board" ) ;   
+        this.BGblackWhenSettingsOpen.active = false ;    
+        this.settingsImgButtom.children.forEach( (child) => {
+            child.setPosition( new Vec3(0,0,0) ) ;
+            child.active = false ;
+        } ) 
         this.cellNodesMap.set(this.player0thPosition.toString(), this.player1Img);
-        this.cellNodesMap.set(this.player0thPosition.toString(), this.player2Img);
+        // this.cellNodesMap.set(this.player0thPosition.toString(), this.player2Img);
         let cellNo = 1 ;
         for (let i = 0; i < 10; i++) 
         {
@@ -146,6 +234,11 @@ export class createBoard extends Component {
         // console.log( "2 board base " , this.node.getComponent(UITransform).contentSize)
 
 
+
+
+        this.rollDiceButton.node.on('click', this.RollDiceRandomaly, this);
+
+
         // //  now add the ladders after getting the input from the secondScreen
         // //  now add the ladders after getting the input from the secondScreen
         for(let i=0; i<this.totalLadders; i++)
@@ -157,6 +250,7 @@ export class createBoard extends Component {
 
         // //  now add the snakes after getting the input from the secondScreen
         // //  now add the snakes after getting the input from the secondScreen
+        // for(let i=0; i<5; i++)
         for(let i=0; i<this.totalSnakes; i++)
         {
             console.log( "another " ) ;
@@ -170,60 +264,23 @@ export class createBoard extends Component {
     }
 
 
-
-
-    takeInputFromSecondScreen( ladderInputFromSecondScreen : number , snakeInputFromSecondScreen : number  )
-    {
-        this.totalLadders = ladderInputFromSecondScreen ;
-        this.totalSnakes = snakeInputFromSecondScreen ;
-
-
-        // console.log( " take take input from second screen " ) ;
-        // console.log( ladderInputFromSecondScreen , "  ladder " , snakeInputFromSecondScreen ) ;
-        // console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
-    }
-
-
-
-    ArrowplayerAnimation(  )
-    {
-        let player1CurrPositionX = this.player1ArrowImg.position.x ;
-        let player1CurrPositionY = this.player1ArrowImg.position.y ;
-        this.isArrowAnimating = true ;
-        tween(this.player1ArrowImg)
-        .to(0.5 ,{ position: new Vec3( player1CurrPositionX , player1CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
-        .to(0.5, { position: new Vec3( player1CurrPositionX , player1CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
-            easing: 'quadInOut',
-            onComplete: () => { 
-                
-            }
-        })
-        .start();
-        let player2CurrPositionX = this.player2ArrowImg.position.x ;
-        let player2CurrPositionY = this.player2ArrowImg.position.y ;
-        tween(this.player2ArrowImg)
-        .to(0.5 ,{ position: new Vec3( player2CurrPositionX , player2CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
-        .to(0.5, { position: new Vec3( player2CurrPositionX , player2CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
-            easing: 'quadInOut',
-            onComplete: () => { 
-                this.isArrowAnimating = false ;
-            }
-        })
-        .start();
-    }
-
-
-
-
-
-
     update(deltaTime: number) 
     {
         if( ! this.isArrowAnimating )
         {
             this.ArrowplayerAnimation() ;
         }
+
+        if( ! this.isAnimating && ! this.firstSixSound_GetReady.playing  )
+        {
+            this.rollDiceButton.interactable = true ;
+        }
     }
+
+
+
+
+
 
 
 
@@ -344,12 +401,9 @@ export class createBoard extends Component {
 
 
 
-
-
-
     addSnakesToBoard()
     {
-        console.log( " add snakes function "   ) ; 
+        console.log( " add snakes function =============>  "   ) ; 
         let cell1 = randomRangeInt(1,100) ;
         let cell2 = randomRangeInt(1,100) ;
         let topCell = Math.max(cell1, cell2);
@@ -361,8 +415,8 @@ export class createBoard extends Component {
             topCell = Math.max(cell1, cell2);
             bottomCell = Math.min(cell1, cell2);
         } 
-        // topCell = 81;
-        // bottomCell = 3;
+        // topCell = 99;
+        // bottomCell = 1;
         // topCell = 86;
         // bottomCell = 22;
         // topCell = 6;
@@ -387,7 +441,7 @@ export class createBoard extends Component {
         // console.log( "5dx hjngjgjgjh ") ;
         // console.log( "ps tp => " , topcellPositionWorld.x , "dy=> ", topcellPositionWorld.y ) ;
         // console.log( "ps bt => " , bottomcellPositionWorld.x , "dy=> ", bottomcellPositionWorld.y ) ;
-        console.log( "dx => " , dx , "dy=> ", dy ) ;
+        // console.log( "dx => " , dx , "dy=> ", dy ) ;
         let distance = Math.sqrt(dx * dx + dy * dy );
         console.log( "dis  " , distance , "  in integer " , Math.floor(distance) ) ;
         // // angle from bottom to top
@@ -402,17 +456,40 @@ export class createBoard extends Component {
         
         let fullSnakeNode = instantiate(this.snakePrefab) ;
         let fullSnakeNodeWidth = fullSnakeNode.getComponent(Sprite).spriteFrame.width ;
-        fullSnakeNode.getComponent(UITransform).setContentSize( fullSnakeNodeWidth  , Math.floor(distance) ) ;
+        let fullSnakeNodeHeight = fullSnakeNode.getComponent(Sprite).spriteFrame.height ;
+        let fullSnakeNodeTOP = fullSnakeNode.getComponent(Sprite).spriteFrame.insetTop ;
+        let fullSnakeNodeBottom = fullSnakeNode.getComponent(Sprite).spriteFrame.insetBottom ;
+        // console.log( fullSnakeNodeWidth , "  width sprite frame height   " , fullSnakeNodeHeight ) ;
+        // console.log( fullSnakeNodeTOP , "  Top sprite frame Bottom   " , fullSnakeNodeBottom ) ;
+        let snakeHeadHeight = fullSnakeNodeTOP  ;
+        let snakeTailHeight = fullSnakeNodeBottom ;
+        let repetitionPartHeight = fullSnakeNodeHeight - snakeHeadHeight - snakeTailHeight ;
+        let noOfrepetitionOfImage = Math.floor( (distance-snakeHeadHeight-snakeTailHeight)/repetitionPartHeight ) ;
+        console.log( repetitionPartHeight , "  repetition   " , noOfrepetitionOfImage , " ok " , repetitionPartHeight * noOfrepetitionOfImage  ) ;
+        
+        let contentSizeHeight = snakeHeadHeight + repetitionPartHeight * noOfrepetitionOfImage + snakeTailHeight ;
+        fullSnakeNode.getComponent(UITransform).setContentSize( fullSnakeNodeWidth  ,  contentSizeHeight  ) ;
+        console.log( contentSizeHeight , "  contentSizeHeight   " ) ;
 
+
+
+
+        // let diff = distance - contentSizeHeight ;
+        // if( diff < 25 ) diff = 0 ;
+        // fullSnakeNode.setPosition(new Vec3( bottomcellPositionWorld.x+diff/2 , bottomcellPositionWorld.y + diff/2 ) ) ;
+
+
+
+
+        fullSnakeNode.setPosition(new Vec3( bottomcellPositionWorld.x , bottomcellPositionWorld.y  ) ) ;
+        // fullSnakeNode.getComponent(UITransform).setAnchorPoint(new Vec2(0 , 0)) ;
+        fullSnakeNode.eulerAngles = new Vec3(0, 0, -(90-angleDegrees));
         const randomR = Math.random() * 255;
         const randomG = Math.random() * 255;
         const randomB = Math.random() * 255;
-        const randomColor = new Color(randomR, randomG, randomB);
+        let randomColor = new Color(randomR, randomG, randomB);
+        randomColor = new Color(255, 245, 0, 255)
         fullSnakeNode.getComponent(Sprite).color = randomColor;
-
-        fullSnakeNode.getComponent(UITransform).setAnchorPoint(new Vec2(0 , 0)) ;
-        fullSnakeNode.eulerAngles = new Vec3(0, 0, -(90-angleDegrees));
-        fullSnakeNode.setPosition(bottomcellPositionWorld) ;
         // this.node.parent.addChild(fullSnakeNode) ;
         this.allsnakes.addChild(fullSnakeNode) ;
 
@@ -431,54 +508,45 @@ export class createBoard extends Component {
 
 
 
-    threeSixAnimation( playerImg : Node , playerCurrCell : number, playerPrevCell : number, playerindex : number  )
+    ArrowplayerAnimation(  )
     {
-        this.playerMoveMusic.play();
-        console.log( " three six animation funciton " ) ;
-        if( playerindex == 1 ) this.player1CurrCell = playerCurrCell ;
-        else this.player2CurrCell = playerCurrCell ;
-        let playerCurrCellPositionX = playerImg.position.x ;
-        let playerCurrCellPositionY = playerImg.position.y ;
-        let posNode=this.cellNodesMap.get(playerCurrCell.toString())
-        let worldpos = posNode.getWorldPosition(); 
-        let NextCellPosition=  this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(worldpos);
-        let NextCellPositionX =  NextCellPosition.x;
-        let NextCellPositionY =  NextCellPosition.y;
-        console.log( "currCell " , playerCurrCell ) ;
-        tween(playerImg)
-        .to(0.2 ,{ position: new Vec3(playerCurrCellPositionX , playerCurrCellPositionY + 10) } )
-        .to(0.5 ,{ position: new Vec3(NextCellPositionX , NextCellPositionY + 10) } )
-        .to(0.2, { position: NextCellPosition }, {
+        let player1CurrPositionX = this.player1ArrowImg.position.x ;
+        let player1CurrPositionY = this.player1ArrowImg.position.y ;
+        this.isArrowAnimating = true ;
+        tween(this.player1ArrowImg)
+        .to(0.5 ,{ position: new Vec3( player1CurrPositionX , player1CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
+        .to(0.5, { position: new Vec3( player1CurrPositionX , player1CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
             easing: 'quadInOut',
-            
             onComplete: () => { 
-                this.playerMoveMusic.stop();
-                if( playerCurrCell == playerPrevCell || playerCurrCell == 1 )
-                {
-                    this.isAnimating = false ;
-                    return ;
-                }
-                this.threeSixAnimation( playerImg , playerCurrCell-1 , playerPrevCell , playerindex ) ;
+                
+            }
+        })
+        .start();
+        let player2CurrPositionX = this.player2ArrowImg.position.x ;
+        let player2CurrPositionY = this.player2ArrowImg.position.y ;
+        tween(this.player2ArrowImg)
+        .to(0.5 ,{ position: new Vec3( player2CurrPositionX , player2CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
+        .to(0.5, { position: new Vec3( player2CurrPositionX , player2CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
+            easing: 'quadInOut',
+            onComplete: () => { 
+                this.isArrowAnimating = false ;
             }
         })
         .start();
     }
 
 
+
     RollDiceRandomaly()
     {
-        if( this.isAnimating )
-        {
-            window.alert(" Player is currently playing ") ;
-            return ;
-        }
         let randomNumber = Math.floor(Math.random() * 6) + 1 ;
         this.diceImg.getComponent(Sprite).spriteFrame = this.diceImgArray[randomNumber-1] ;
         if(this.player1Turn  )
         {
+            this.rollDiceButton.interactable = false;
             this.player1rollDiceRandomaly(randomNumber) ;
         }
-        else this.player2rollDiceRandomaly(randomNumber) ;
+        else this.rollDiceButton.interactable = false , this.player2rollDiceRandomaly(randomNumber) ;
     }
 
 
@@ -507,7 +575,7 @@ export class createBoard extends Component {
         {
             this.player1CurrCell = 0 ;
             console.log( " ready to play ") ;
-            this.firstSixSound.play() ;
+            this.firstSixSound_GetReady.play() ;
             return ;
         }
         this.isAnimating = true ;
@@ -519,10 +587,7 @@ export class createBoard extends Component {
             {
                 console.log(this.player1CurrCell , " strt three six animation " , this.player1SixPrevCell ) ;
                 this.threeSixAnimation(this.player1Img , this.player1CurrCell-1 , this.player1SixPrevCell  , 1 ) ;
-                this.player1Turn = false ;
-                this.player2Turn = true ;
-                this.player1SixCount = 0 ;
-                this.player1SixPrevCell =0 ;
+                
                 return ;
             }
         }
@@ -575,7 +640,7 @@ export class createBoard extends Component {
         {
             this.player2CurrCell = 0 ;
             console.log( " ready to play ") ;
-            this.firstSixSound.play() ;
+            this.firstSixSound_GetReady.play() ;
             return ;
         }
         this.isAnimating = true ;
@@ -615,6 +680,43 @@ export class createBoard extends Component {
         }, 0.5);
     }
 
+    threeSixAnimation( playerImg : Node , playerCurrCell : number, playerPrevCell : number, playerindex : number  )
+    {
+        this.playerMoveMusic.play();
+        console.log( " three six animation funciton " ) ;
+        if( playerindex == 1 ) this.player1CurrCell = playerCurrCell ;
+        else this.player2CurrCell = playerCurrCell ;
+        let playerCurrCellPositionX = playerImg.position.x ;
+        let playerCurrCellPositionY = playerImg.position.y ;
+        let posNode=this.cellNodesMap.get(playerCurrCell.toString())
+        let worldpos = posNode.getWorldPosition(); 
+        let NextCellPosition=  this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(worldpos);
+        let NextCellPositionX =  NextCellPosition.x;
+        let NextCellPositionY =  NextCellPosition.y;
+        console.log( "currCell " , playerCurrCell ) ;
+        tween(playerImg)
+        .to(0.1 ,{ position: new Vec3(playerCurrCellPositionX , playerCurrCellPositionY + 10) } )
+        .to(0.2 ,{ position: new Vec3(NextCellPositionX , NextCellPositionY + 10) } )
+        .to(0.1, { position: NextCellPosition }, {
+            easing: 'quadInOut',
+            
+            onComplete: () => { 
+                this.playerMoveMusic.stop();
+                console.log( "currCell " , playerCurrCell , " prev " , playerPrevCell ) ;
+                if( playerCurrCell == playerPrevCell  )
+                {
+                    this.isAnimating = false ;
+                    this.player1Turn = false ;
+                    this.player2Turn = true ;
+                    this.player1SixCount = 0 ;
+                    this.player1SixPrevCell =0 ;
+                    return ;
+                }
+                this.threeSixAnimation( playerImg , playerCurrCell-1 , playerPrevCell , playerindex ) ;
+            }
+        })
+        .start();
+    }
 
 
 
@@ -644,7 +746,6 @@ export class createBoard extends Component {
 
 
 
-
     playerTweenAnimation( playerImg : Node , currCell : number , finalCell:number , playerindex : number )
     {
         
@@ -657,16 +758,22 @@ export class createBoard extends Component {
         }
         if( currCell > finalCell ) 
         {
-            if( playerindex == 1 && this.player1SixCount == 0 )
+            // if( playerindex == 1 && this.player1SixCount == 0 ) this.player1ArrowImg.active = false , this.player2ArrowImg.active = true ;
+            // else if( playerindex == 1 && this.player1SixCount >= 1 ) this.player1ArrowImg.active = true ;
+            // else if( playerindex == 2 && this.player2SixCount == 0 ) this.player2ArrowImg.active = false ,this.player1ArrowImg.active = true ;
+            // else if( playerindex == 2 && this.player2SixCount >= 1 ) this.player2ArrowImg.active = true ;
+            if( playerindex == 1 )
             {
-                this.player1ArrowImg.active = false ;
-                this.player2ArrowImg.active = true ;
+                this.player1ArrowImg.active = this.player1SixCount >= 1 ;
+                this.player2ArrowImg.active = this.player1SixCount < 1 ;
             }
-            else if( playerindex == 2 && this.player2SixCount == 0 )
+            else
             {
-                this.player2ArrowImg.active = false ;
-                this.player1ArrowImg.active = true ;
+                this.player2ArrowImg.active = this.player2SixCount >= 1 ;
+                this.player1ArrowImg.active = this.player2SixCount < 1 ;
             }
+            //
+            //
             this.playerMoveMusic.stop();
             this.isAnimating = false ;
             console.log( " final curr  cell " , currCell-1 ) ;
@@ -677,7 +784,7 @@ export class createBoard extends Component {
                 let playerCurrCellPositionX = playerImg.position.x ;
                 let playerCurrCellPositionY = playerImg.position.y ;
                 tween(playerImg)
-                .to(0.2, { position : new Vec3(playerCurrCellPositionX+10, playerCurrCellPositionY+10, 0) }, {
+                .to(0.1, { position : new Vec3(playerCurrCellPositionX+10, playerCurrCellPositionY+10, 0) }, {
                     easing: 'quadInOut',
                     onComplete: () => { 
                     }
@@ -697,9 +804,9 @@ export class createBoard extends Component {
         let playerCurrCellPositionX = playerImg.position.x ;
         let playerCurrCellPositionY = playerImg.position.y ;
         tween(playerImg)
-        .to(0.2 ,{ position: new Vec3(playerCurrCellPositionX , playerCurrCellPositionY + 10) } )
-        .to(0.5 ,{ position: new Vec3(NextCellPositionX , NextCellPositionY + 10) } )
-        .to(0.2, { position: NextCellPosition }, {
+        .to(0.1 ,{ position: new Vec3(playerCurrCellPositionX , playerCurrCellPositionY + 10) } )
+        .to(0.2 ,{ position: new Vec3(NextCellPositionX , NextCellPositionY + 10) } )
+        .to(0.1, { position: NextCellPosition }, {
             easing: 'quadInOut',
             onComplete: () => { 
                 this.playerMoveMusic.stop();
@@ -791,7 +898,6 @@ export class createBoard extends Component {
         }).start() ;
     }
   
-
     
     playerSnakeBiteAnimation( playerImg : Node , playerCell : number, playerindex : number   )
     {

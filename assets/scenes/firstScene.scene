@@ -304,7 +304,7 @@
       "a": 255
     },
     "_spriteFrame": {
-      "__uuid__": "e03f4fef-2ff7-4cb3-8e4f-5413e9be9b9e@f9941",
+      "__uuid__": "c4267a80-c140-432a-afde-e5903750b156@f9941",
       "__expectedType__": "cc.SpriteFrame"
     },
     "_type": 0,
@@ -674,7 +674,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "GameLogo",
+    "_name": "snakeLadderLogo",
     "_objFlags": 0,
     "_parent": {
       "__id__": 2
@@ -730,8 +730,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 1100,
-      "height": 546
+      "width": 1000,
+      "height": 525
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -839,8 +839,8 @@
     "__prefab": null,
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 250,
-      "height": 241
+      "width": 200,
+      "height": 203
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -1115,6 +1115,12 @@
     },
     "_enabled": true,
     "__prefab": null,
+    "snakeLadderLogo": {
+      "__id__": 18
+    },
+    "playIcon": {
+      "__id__": 21
+    },
     "OffAudio_icon": {
       "__id__": 8
     },
