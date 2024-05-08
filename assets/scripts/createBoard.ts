@@ -1,5 +1,6 @@
 import { _decorator, AudioSource, Button, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
 import { setCell } from './setCell';
+import { Singleton } from './manager/Singleton';
 const { ccclass, property } = _decorator;
 
 @ccclass('createBoard')
@@ -50,6 +51,10 @@ export class createBoard extends Component {
     ladderPartPrefab : Prefab | null = null ;
     @property( {type : Prefab} )
     snakePrefab : Prefab | null = null ;
+
+
+    // @property( {type : Prefab} )
+    // winPrefab : Prefab | null = null ;
 
 
     @property( {type : Node} )
@@ -174,22 +179,25 @@ export class createBoard extends Component {
     
 
 
-    takeInputFromSecondScreen( pl1Img:Node , pl2Img:Node , ladderInputFromSecondScreen : number , snakeInputFromSecondScreen : number  )
-    {
-        this.totalLadders = ladderInputFromSecondScreen ;
-        this.totalSnakes = snakeInputFromSecondScreen ;
-        console.log( " take take input from second screen " ) ;
+    // // // // not needed as now we are taking the input using singleton 
+    // // // // not needed as now we are taking the input using singleton 
+    // // // // not needed as now we are taking the input using singleton 
+    // takeInputFromSecondScreen( pl1Img:Node , pl2Img:Node , ladderInputFromSecondScreen : number , snakeInputFromSecondScreen : number  )
+    // {
+    //     this.totalLadders = ladderInputFromSecondScreen ;
+    //     this.totalSnakes = snakeInputFromSecondScreen ;
+    //     console.log( " take take input from second screen " ) ;
 
-        // this.node.parent.addChild(pl1Img);
-        // this.node.parent.addChild(pl2Img);
-        console.log("Img",pl1Img,pl2Img)
-        // this.player1 = pl1Img ;
-        // this.player2 = pl2Img ;
+    //     // this.node.parent.addChild(pl1Img);
+    //     // this.node.parent.addChild(pl2Img);
+    //     console.log("Img",pl1Img,pl2Img)
+    //     // this.player1 = pl1Img ;
+    //     // this.player2 = pl2Img ;
 
 
-        // console.log( ladderInputFromSecondScreen , "  ladder " , snakeInputFromSecondScreen ) ;
-        // console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
-    }
+    //     // console.log( ladderInputFromSecondScreen , "  ladder " , snakeInputFromSecondScreen ) ;
+    //     // console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
+    // }
 
 
 
@@ -199,12 +207,13 @@ export class createBoard extends Component {
 
     start( ) 
     {
-        // this.scheduleOnce( () => {
-        //     this.player1Img.getComponent(Sprite).spriteFrame = this.player1 ;
-        //     this.player2Img.getComponent(Sprite).spriteFrame = this.player2 ;
-            
-        // } , 2 )
         console.log( " strt main scene screate board" ) ;   
+        this.player1Img.getComponent(Sprite).spriteFrame = Singleton.getInstance().playerOne;
+        this.player2Img.getComponent(Sprite).spriteFrame = Singleton.getInstance().playerTwo;
+
+        this.totalLadders = Singleton.getInstance()._totalLadders ;
+        this.totalSnakes = Singleton.getInstance()._totalSnakes ;
+
         this.BGblackWhenSettingsOpen.active = false ;    
         this.settingsImgButtom.children.forEach( (child) => {
             child.setPosition( new Vec3(0,0,0) ) ;

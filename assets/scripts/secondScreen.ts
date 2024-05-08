@@ -2,6 +2,7 @@ import { _decorator, AudioSource, Button, Component, director, EditBox, instanti
 const { ccclass, property } = _decorator;
 
 import { createBoard } from './createBoard';
+import { Singleton } from './manager/Singleton';
 
 @ccclass('secondScreen')
 export class secondScreen extends Component {
@@ -39,8 +40,8 @@ export class secondScreen extends Component {
     private userInputSnake : number = 0 ;
 
     private playerCount :number = 0 ;
-    private player1 : Node ;
-    private player2 : Node ;
+    private  player1 : Node ;
+    private  player2 : Node ;
 
 
 
@@ -84,20 +85,18 @@ export class secondScreen extends Component {
     playerSelectButton(index:number)
     {
         this.playerCount ++ ;
-        console.log( " player button " , index) ;
-        if( this.playerCount == 1 ) this.player1 = this.ColorOptions.children[index] ;
-        else if( this.playerCount == 2 ) this.player2 = this.ColorOptions.children[index] ;
+        console.log( " player button " , index , " player count " , this.playerCount) ;
+        if( this.playerCount == 1 ) console.log("player count1") , this.player1 = this.ColorOptions.children[index] ;
+        else if( this.playerCount == 2 )  console.log("player count2") , this.player2 = this.ColorOptions.children[index] ;
 
         this.ColorOptions.children[index].active = false ;
         let textSelectColorNodelabel = this.ColorOptions.parent.getChildByName('SelectPlayersColorsText');
         if(this.playerCount == 2 )
         {
-          //  this.scheduleOnce( () => {
-                this.TwoplayerModeClicked() ;
-
-          //  } , 0.3 ) ;
+            this.TwoplayerModeClicked() ;
+            return ;
         }
-        textSelectColorNodelabel.getComponent(Label).string = `Select Player ${this.playerCount} Color` ;
+        textSelectColorNodelabel.getComponent(Label).string = `Select Player ${this.playerCount+1} Color` ;
     }
 
 
@@ -137,23 +136,25 @@ export class secondScreen extends Component {
             console.log("Please give any other number except 0 ");
             return ;
         }
-        console.log("Img1  ",this.player1,  " img2 " , this.player2) ;
         Tween.stopAll();
+        Singleton.getInstance().playerOne = this.player1.getComponent(Sprite).spriteFrame ;
+        Singleton.getInstance().playerTwo = this.player2.getComponent(Sprite).spriteFrame ;
+        Singleton.getInstance().totalLadders = this.userInputLadder ;
+        Singleton.getInstance().totalSnakes = this.userInputSnake ;
         director.loadScene('mainScene', () => {
-            console.log("inside========>>>>  ",this.player1,  " inside " , this.player2,this.userInputLadder) ;
             // console.log( " 11access "  )
-            const ComponentCanvas = director.getScene().getChildByName('Canvas');
-            // console.log( " Canvas " , ComponentCanvas )
-            const createBoardComponent = ComponentCanvas.getChildByName('BoardBase').getComponent(createBoard);
-            // console.log( " BoardBase " , ComponentCanvas.getChildByName('BoardBase') )
-            if (createBoardComponent) 
-            {
-                // console.log("2nd screen     ladder:", this.userInputLadder, "and snake:", this.userInputSnake);
-                createBoardComponent.takeInputFromSecondScreen( this.player1 , this.player2 , this.userInputLadder, this.userInputSnake );
-            } else
-            {
-                console.error("createBoard component not found in mainScene!");
-            }
+            // const ComponentCanvas = director.getScene().getChildByName('Canvas');
+            // // console.log( " Canvas " , ComponentCanvas )
+            // const createBoardComponent = ComponentCanvas.getChildByName('BoardBase').getComponent(createBoard);
+            // // console.log( " BoardBase " , ComponentCanvas.getChildByName('BoardBase') )
+            // if (createBoardComponent) 
+            // {
+            //     // console.log("2nd screen     ladder:", this.userInputLadder, "and snake:", this.userInputSnake);
+            //     // createBoardComponent.takeInputFromSecondScreen( this.player1 , this.player2 , this.userInputLadder, this.userInputSnake );
+            // } else
+            // {
+            //     console.error("createBoard component not found in mainScene!");
+            // }
         });
     }
 }
