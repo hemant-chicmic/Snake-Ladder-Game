@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, resources, SpriteFrame } from "cc";
+import { _decorator, SpriteFrame } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass("Singleton")
@@ -34,7 +34,7 @@ export class Singleton {
 
 
 
-  
+
   _totalLadders:number;
   set totalLadders(val:number){
     this._totalLadders = val ;
@@ -51,21 +51,6 @@ export class Singleton {
     return this._totalSnakes ;
   }
 
-
-  // loadResource(path: string) {
-  //   return new Promise((resolve, reject) => {
-  //     resources.loadDir(path, SpriteFrame, (err, asset) => {
-  //       if (err) {
-  //         console.log("reject");
-  //         reject(err);
-  //       } else {
-  //         this.spriteArray = asset;
-  //         //console.log(asset.length);
-  //         resolve("exist");
-  //       }
-  //     });
-  //   });
-  // }
 
 
 

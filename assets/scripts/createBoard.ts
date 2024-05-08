@@ -1,6 +1,7 @@
 import { _decorator, AudioSource, Button, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
 import { setCell } from './setCell';
 import { Singleton } from './manager/Singleton';
+import { switchSoundButton } from './Utility';
 const { ccclass, property } = _decorator;
 
 @ccclass('createBoard')
@@ -164,17 +165,7 @@ export class createBoard extends Component {
     {
         if( this.backgroundMusic.playing ) this.backgroundMusic.stop() ;
         else this.backgroundMusic.play() ;
-
-        if( this.OnAudio_icon.active )
-        {
-            this.OnAudio_icon.active = false ;
-            this.OffAudio_icon.active = true ;
-        }
-        else
-        {
-            this.OnAudio_icon.active = true ;
-            this.OffAudio_icon.active = false ;
-        }
+        switchSoundButton(this.OnAudio_icon, this.OffAudio_icon, !this.OnAudio_icon.active);
     }
     
 

@@ -1,25 +1,24 @@
 import { _decorator, AudioSource, Button, Component, director, EditBox, instantiate, Label, Layout, Node, Prefab, Scene, Sprite, SpriteFrame, Tween } from 'cc';
 const { ccclass, property } = _decorator;
 
-import { createBoard } from './createBoard';
 import { Singleton } from './manager/Singleton';
+import { switchSoundButton } from './Utility';
 
-@ccclass('secondScreen')
-export class secondScreen extends Component {
+@ccclass('PlayerSelection')
+export class PlayerSelection extends Component {
 
     @property( {type : AudioSource} )
     backgroundMusic: AudioSource | null = null; 
 
     @property({type :Node})
     OffAudio_icon : Node | null = null ;
+
     @property({type :Node})
     OnAudio_icon : Node | null = null ;
 
-
-
-
     @property( {type : EditBox} )
     ladderInput : EditBox | null = null ;
+    
     @property( {type : EditBox} )
     snakeInput : EditBox | null = null ;
 
@@ -49,17 +48,8 @@ export class secondScreen extends Component {
     {
         if( this.backgroundMusic.playing ) this.backgroundMusic.stop() ;
         else this.backgroundMusic.play() ;
-
-        if( this.OnAudio_icon.active )
-        {
-            this.OnAudio_icon.active = false ;
-            this.OffAudio_icon.active = true ;
-        }
-        else
-        {
-            this.OnAudio_icon.active = true ;
-            this.OffAudio_icon.active = false ;
-        }
+        
+        switchSoundButton(this.OnAudio_icon, this.OffAudio_icon,  ! this.OnAudio_icon.active);
     }
 
 
@@ -77,8 +67,10 @@ export class secondScreen extends Component {
             this.ColorOptions.addChild(colorNode) ; 
             colorNode.on('click', () => this.playerSelectButton(i), this);
         }
-        this.ladderInput.node.on('text-changed', this.onEditBegan, this);
-        this.snakeInput.node.on('text-changed', this.onEditBegan, this);
+
+        
+        this.ladderInput.node.on(EditBox.EventType.TEXT_CHANGED, this.onEditBegan, this);
+        this.snakeInput.node.on(EditBox.EventType.TEXT_CHANGED, this.onEditBegan, this);
         this.TwoplayerMode?.on('click', this.TwoplayerModeClicked, this);
     }
     
@@ -141,7 +133,7 @@ export class secondScreen extends Component {
         Singleton.getInstance().playerTwo = this.player2.getComponent(Sprite).spriteFrame ;
         Singleton.getInstance().totalLadders = this.userInputLadder ;
         Singleton.getInstance().totalSnakes = this.userInputSnake ;
-        director.loadScene('mainScene', () => {
+        director.loadScene('Gamepl ay', () => {
             // console.log( " 11access "  )
             // const ComponentCanvas = director.getScene().getChildByName('Canvas');
             // // console.log( " Canvas " , ComponentCanvas )

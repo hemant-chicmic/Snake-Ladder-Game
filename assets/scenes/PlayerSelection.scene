@@ -1,7 +1,7 @@
 [
   {
     "__type__": "cc.SceneAsset",
-    "_name": "secondScene",
+    "_name": "PlayerSelection",
     "_objFlags": 0,
     "_native": "",
     "scene": {
@@ -10,7 +10,7 @@
   },
   {
     "__type__": "cc.Scene",
-    "_name": "secondScene",
+    "_name": "PlayerSelection",
     "_objFlags": 0,
     "_parent": null,
     "_children": [
@@ -1723,10 +1723,10 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 187,
-      "g": 187,
-      "b": 187,
-      "a": 255
+      "r": 90,
+      "g": 0,
+      "b": 0,
+      "a": 247
     },
     "_string": "Enter Number of Ladder",
     "_horizontalAlign": 0,
@@ -1782,9 +1782,9 @@
     "_dstBlendFactor": 4,
     "_color": {
       "__type__": "cc.Color",
-      "r": 255,
+      "r": 0,
       "g": 255,
-      "b": 255,
+      "b": 61,
       "a": 255
     },
     "_spriteFrame": {
