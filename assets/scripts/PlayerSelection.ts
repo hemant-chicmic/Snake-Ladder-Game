@@ -3,6 +3,7 @@ const { ccclass, property } = _decorator;
 
 import { Singleton } from './manager/Singleton';
 import { switchSoundButton } from './Utility';
+import { loadScene, GameplayScene } from './constants';
 
 @ccclass('PlayerSelection')
 export class PlayerSelection extends Component {
@@ -55,6 +56,7 @@ export class PlayerSelection extends Component {
 
     start() 
     {
+        this.backgroundMusic.play() ;
         for(let i = 0; i<6; i++)
         {
             let colorNode = instantiate( this.playersColorsPrefabSecondScreen ) ;
@@ -65,13 +67,13 @@ export class PlayerSelection extends Component {
             colorNodeButtonComponent.zoomScale = 0.7 ;
             colorNodeButtonComponent.duration = 0.1 ;
             this.ColorOptions.addChild(colorNode) ; 
-            colorNode.on('click', () => this.playerSelectButton(i), this);
+            colorNode.on(Button.EventType.CLICK, () => this.playerSelectButton(i), this);
         }
 
         
         this.ladderInput.node.on(EditBox.EventType.TEXT_CHANGED, this.onEditBegan, this);
         this.snakeInput.node.on(EditBox.EventType.TEXT_CHANGED, this.onEditBegan, this);
-        this.TwoplayerMode?.on('click', this.TwoplayerModeClicked, this);
+        this.TwoplayerMode.on(Button.EventType.CLICK, this.TwoplayerModeClicked, this);
     }
     
     playerSelectButton(index:number)
@@ -133,7 +135,7 @@ export class PlayerSelection extends Component {
         Singleton.getInstance().playerTwo = this.player2.getComponent(Sprite).spriteFrame ;
         Singleton.getInstance().totalLadders = this.userInputLadder ;
         Singleton.getInstance().totalSnakes = this.userInputSnake ;
-        director.loadScene('Gamepl ay', () => {
+        director.loadScene(GameplayScene, () => {
             // console.log( " 11access "  )
             // const ComponentCanvas = director.getScene().getChildByName('Canvas');
             // // console.log( " Canvas " , ComponentCanvas )

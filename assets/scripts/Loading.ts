@@ -1,6 +1,7 @@
 import { _decorator, AudioSource, Component, director, Node, tween, Tween, Vec3 } from 'cc';
 import { switchSoundButton } from './Utility';
 const { ccclass, property } = _decorator;
+import { playerSelectionScene, GameplayScene } from './constants';
 
 @ccclass('Loading')
 export class Loading extends Component {
@@ -38,11 +39,12 @@ export class Loading extends Component {
     {
         Tween.stopAll() ;
         console.log( " playe game ") ;
-        director.loadScene( 'PlayerSelection' ) ;
+        director.loadScene( playerSelectionScene ) ;
     }
 
     start()
     {
+        this.backgroundMusic.play() ;
         this.SnakeAndladderLogoAnimation() ;
         this.playIconAnimation() ;
     }

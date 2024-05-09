@@ -1,13 +1,18 @@
-import { _decorator, AudioSource, Button, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
+import { _decorator, AudioSource, Button, Color, Component, director, EditBox, Graphics, HorizontalTextAlignment, instantiate, Intersection2D, Label, Layout, macro, Node, Prefab, Quat, randomRangeInt, Sprite, SpriteFrame, Tween, tween, UITransform, utils, Vec2, Vec3 } from 'cc';
 import { setCell } from './setCell';
 import { Singleton } from './manager/Singleton';
 import { switchSoundButton } from './Utility';
+import { loadScene, playerSelectionScene , playAgainButton , winnerPlayerName } from './constants';
+
 const { ccclass, property } = _decorator;
 
 @ccclass('createBoard')
 export class createBoard extends Component {
 
 
+
+    @property( {type : Prefab} )
+    winPrefab : Prefab | null = null ;
 
     @property( {type : Prefab} )
     cellPrefab : Prefab | null = null ;
@@ -106,11 +111,6 @@ export class createBoard extends Component {
     private snakeTopCellsExits: number[] = new Array(100);
     private snakeBottomCellsExits: number[] = new Array(100);
     // private allLadder: Node[] = new Array();  // // //  for bounding box  
-    
-    
-
-    private player1 : Node ;
-    private player2 : Node ;
 
     settingsButtom()
     {
@@ -152,13 +152,13 @@ export class createBoard extends Component {
     {
         console.log( "restart Game To Second Screen" ) ;
         Tween.stopAll() ;
-        director.loadScene('secondScene') ;
+        director.loadScene(playerSelectionScene) ;
     }
     exitGameToFirstScreen()
     {
         console.log( "exit screen first screen" ) ;
         Tween.stopAll() ;
-        director.loadScene('firstScene') ;
+        director.loadScene(loadScene) ;
     }
 
     OnOffMusicButton()
@@ -236,7 +236,7 @@ export class createBoard extends Component {
 
 
 
-        this.rollDiceButton.node.on('click', this.RollDiceRandomaly, this);
+        this.rollDiceButton.node.on(Button.EventType.CLICK, this.RollDiceRandomaly, this);
 
 
         // //  now add the ladders after getting the input from the secondScreen
@@ -266,11 +266,6 @@ export class createBoard extends Component {
 
     update(deltaTime: number) 
     {
-        if( ! this.isArrowAnimating )
-        {
-            this.ArrowplayerAnimation() ;
-        }
-
         if( ! this.isAnimating && ! this.firstSixSound_GetReady.playing  )
         {
             this.rollDiceButton.interactable = true ;
@@ -514,24 +509,28 @@ export class createBoard extends Component {
         let player1CurrPositionY = this.player1ArrowImg.position.y ;
         this.isArrowAnimating = true ;
         tween(this.player1ArrowImg)
-        .to(0.5 ,{ position: new Vec3( player1CurrPositionX , player1CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
-        .to(0.5, { position: new Vec3( player1CurrPositionX , player1CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
-            easing: 'quadInOut',
-            onComplete: () => { 
-                
-            }
-        })
+        .repeatForever(
+            tween()
+            .to(0.5 ,{ position: new Vec3( player1CurrPositionX , player1CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
+            .to(0.5, { position: new Vec3( player1CurrPositionX , player1CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
+                easing: 'quadInOut',
+                onComplete: () => { 
+                }
+            })
+        )
         .start();
         let player2CurrPositionX = this.player2ArrowImg.position.x ;
         let player2CurrPositionY = this.player2ArrowImg.position.y ;
         tween(this.player2ArrowImg)
-        .to(0.5 ,{ position: new Vec3( player2CurrPositionX , player2CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
-        .to(0.5, { position: new Vec3( player2CurrPositionX , player2CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
-            easing: 'quadInOut',
-            onComplete: () => { 
-                this.isArrowAnimating = false ;
-            }
-        })
+        .repeatForever(
+            tween()
+            .to(0.5 ,{ position: new Vec3( player2CurrPositionX , player2CurrPositionY + 15 , 0) , scale: new Vec3(1.3 , 1 , 1.3) } )
+            .to(0.5, { position: new Vec3( player2CurrPositionX , player2CurrPositionY , 0) , scale: new Vec3(1 , 1 , 1) }, {
+                easing: 'quadInOut',
+                onComplete: () => { 
+                }
+            })
+        )
         .start();
     }
 
@@ -541,11 +540,7 @@ export class createBoard extends Component {
     {
         let randomNumber = Math.floor(Math.random() * 6) + 1 ;
         this.diceImg.getComponent(Sprite).spriteFrame = this.diceImgArray[randomNumber-1] ;
-        if(this.player1Turn  )
-        {
-            this.rollDiceButton.interactable = false;
-            this.player1rollDiceRandomaly(randomNumber) ;
-        }
+        if(this.player1Turn  ) this.rollDiceButton.interactable = false , this.player1rollDiceRandomaly(randomNumber) ;
         else this.rollDiceButton.interactable = false , this.player2rollDiceRandomaly(randomNumber) ;
     }
 
@@ -553,14 +548,7 @@ export class createBoard extends Component {
     player1rollDiceRandomaly(randomNumber : number)
     {
         
-        // if( ! this.player1Turn  )
-        // {
-        //     window.alert(" It's Player 2 Turn ") ;
-        //     return ;
-        // }
         this.diceRollMusic.play();
-        
-        
         console.log( " player 1 roll dice randomly => " ) ;
         if( this.player1CurrCell == -1  &&  randomNumber != 6 )
         {
@@ -587,7 +575,6 @@ export class createBoard extends Component {
             {
                 console.log(this.player1CurrCell , " strt three six animation " , this.player1SixPrevCell ) ;
                 this.threeSixAnimation(this.player1Img , this.player1CurrCell-1 , this.player1SixPrevCell  , 1 ) ;
-                
                 return ;
             }
         }
@@ -598,10 +585,6 @@ export class createBoard extends Component {
             this.player1SixCount = 0 ;
             this.player1SixPrevCell =0 ;
         }
-        // this.diceRollMusic.stop();
-        // this.scheduleOnce(() => {
-        //     this.diceRollMusic.stop();
-        // }, 0.5);
         this.scheduleOnce(() => {
             this.diceRollMusic.stop();
             this.scheduleOnce(() => {
@@ -615,16 +598,7 @@ export class createBoard extends Component {
 
     player2rollDiceRandomaly( randomNumber : number )
     {
-        if( this.isAnimating )
-        {
-            window.alert(" Player is currently playing ") ;
-            return ;
-        }
-        if( ! this.player2Turn  )
-        {
-            window.alert(" It's Player 1 Turn ") ;
-            return ;
-        }
+        
         this.diceRollMusic.play();
         console.log( " player 2 roll dice randomly => " ) ;
         if( this.player2CurrCell == -1  &&  randomNumber != 6 )
@@ -652,10 +626,6 @@ export class createBoard extends Component {
             {
                 console.log(this.player2CurrCell , " strt three six animation " , this.player2SixPrevCell ) ;
                 this.threeSixAnimation(this.player2Img , this.player2CurrCell-1 , this.player2SixPrevCell  , 1 ) ;
-                this.player2Turn = false ;
-                this.player1Turn = true ;
-                this.player2SixCount = 0 ;
-                this.player2SixPrevCell =0 ;
                 return ;
             }
         }
@@ -666,10 +636,6 @@ export class createBoard extends Component {
             this.player2SixCount = 0 ;
             this.player2SixPrevCell =0 ;
         }
-        // this.diceRollMusic.stop();
-        // this.scheduleOnce(() => {
-        //     this.diceRollMusic.stop();
-        // }, 0.5);
         this.scheduleOnce(() => {
             this.diceRollMusic.stop();
             this.scheduleOnce(() => {
@@ -812,10 +778,11 @@ export class createBoard extends Component {
                 this.playerMoveMusic.stop();
                 if( currCell == finalCell && finalCell == 100 )
                 {   
-                    window.alert(` Player ${playerindex} is winner `) ;
                     Tween.stopAll()
-                    window.alert('Play Again ') ;
-                    director.loadScene('secondScene') ;
+                    this.playerWinning( playerindex);
+                    // window.alert(` Player ${playerindex} is winner `) ;
+                    // window.alert('Play Again ') ;
+                    // director.loadScene(playerSelectionScene) ;
                     // return currCell ; // // check it 
                 }
                 this.playerTweenAnimation( playerImg , currCell+1 , finalCell , playerindex) ;
@@ -939,6 +906,24 @@ export class createBoard extends Component {
     }
 
     
+    playerWinning( playerIndex : number )
+    {
+        console.log( " player winning " , playerIndex ) ;
+        let windDialog = instantiate(this.winPrefab) ;
+        let playAgain = windDialog.getChildByName(playAgainButton);
+        playAgain.addComponent(Button) ;
+        let playAgainButtonComponent = playAgain.getComponent(Button) ;
+        playAgainButtonComponent.transition = Button.Transition.SCALE ;
+        playAgainButtonComponent.zoomScale = 0.7 ;
+        playAgainButtonComponent.duration = 0.1 ;
+        //
+        let winnerPlayerNameLabel = windDialog.getChildByName(winnerPlayerName)
+        winnerPlayerNameLabel.getComponent(Label).string = ` Player ${playerIndex} is Winner ` ;
+        this.node.parent.addChild(windDialog) ;
+        playAgain.on(Button.EventType.CLICK, () => {
+            director.loadScene(playerSelectionScene) ;
+        }, this);
+    }
 
 
 
