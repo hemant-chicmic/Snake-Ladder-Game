@@ -184,10 +184,6 @@ export class createBoard extends Component {
   //     // console.log( this.totalLadders , "  snakes " , this.totalSnakes ) ;
   // }
 
-
-
-
-
   newSnakeAddition() {
     console.log("new  ladder ");
     this.allsnakes.removeAllChildren();
@@ -200,7 +196,7 @@ export class createBoard extends Component {
       this.addSnakesToBoard();
     }
   }
-  newLadderAddition() { 
+  newLadderAddition() {
     console.log("new  ladder ");
     this.allLadders.removeAllChildren();
     this.ladderTopCellsExits = [];
@@ -213,22 +209,23 @@ export class createBoard extends Component {
     }
   }
 
-  newSnakesOrLadderAddition( event: any , customEventData: any ) {
-    console.log("new snakes or ladder addition " , event , customEventData );
+
+
+  
+  newSnakesOrLadderAddition(event: any, customEventData: any) {
+    console.log("new snakes or ladder addition ", event, customEventData);
     switch (customEventData) {
-        case "snake":
-            this.newSnakeAddition();
-            break;
-        case "ladder":
-            this.newLadderAddition();
-            break;
-        default:
-            console.log("Invalid custom data");
-            break;
+      case "snake":
+        this.newSnakeAddition();
+        break;
+      case "ladder":
+        this.newLadderAddition();
+        break;
+      default:
+        console.log("Invalid custom data");
+        break;
     }
   }
-
-
 
   start() {
     console.log(" strt main scene screate board");
