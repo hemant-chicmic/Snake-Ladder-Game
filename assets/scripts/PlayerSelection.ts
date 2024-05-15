@@ -125,7 +125,7 @@ export class PlayerSelection extends Component {
             console.log("Please fill in both ladder and snake inputs.");
             return ;
         }
-        if ( this.userInputLadder ==0 || this.userInputSnake == 0 ) 
+        if ( this.userInputLadder == 0 || this.userInputLadder == 50 || this.userInputSnake == 0 || this.userInputSnake == 50 ) 
         {
             console.log("Please give any other number except 0 ");
             return ;

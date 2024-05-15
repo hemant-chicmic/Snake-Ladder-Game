@@ -111,10 +111,10 @@ export class createBoard extends Component {
   private isSettingOpens: boolean = false;
 
   private cellNodesMap: Map<string, Node> = new Map();
-  private ladderTopCellsExits: number[] = new Array(100);
-  private ladderBottomCellsExits: number[] = new Array(100);
-  private snakeTopCellsExits: number[] = new Array(100);
-  private snakeBottomCellsExits: number[] = new Array(100);
+  private ladderTopCellsExits: number[] = new Array(102);
+  private ladderBottomCellsExits: number[] = new Array(102);
+  private snakeTopCellsExits: number[] = new Array(102);
+  private snakeBottomCellsExits: number[] = new Array(102);
   // private allLadder: Node[] = new Array();  // // //  for bounding box
 
   settingsButtom() {
@@ -188,9 +188,9 @@ export class createBoard extends Component {
     console.log("new  ladder ");
     this.allsnakes.removeAllChildren();
     this.snakeTopCellsExits = [];
-    this.snakeTopCellsExits.length = 100;
+    this.snakeTopCellsExits.length = 102;
     this.snakeBottomCellsExits = [];
-    this.snakeBottomCellsExits.length = 100;
+    this.snakeBottomCellsExits.length = 102;
 
     for (let i = 0; i < 10; i++) {
       this.addSnakesToBoard();
@@ -200,18 +200,15 @@ export class createBoard extends Component {
     console.log("new  ladder ");
     this.allLadders.removeAllChildren();
     this.ladderTopCellsExits = [];
-    this.ladderTopCellsExits.length = 100;
+    this.ladderTopCellsExits.length = 102;
     this.ladderBottomCellsExits = [];
-    this.ladderBottomCellsExits.length = 100;
+    this.ladderBottomCellsExits.length = 102;
 
     for (let i = 0; i < 10; i++) {
       this.addLaddersToBoard();
     }
   }
 
-
-
-  
   newSnakesOrLadderAddition(event: any, customEventData: any) {
     console.log("new snakes or ladder addition ", event, customEventData);
     switch (customEventData) {
@@ -265,11 +262,18 @@ export class createBoard extends Component {
 
     // //  now add the ladders after getting the input from the secondScreen
     // //  now add the ladders after getting the input from the secondScreen
-    for (let i = 0; i < this.totalLadders; i++) {
+    for (let i = 0; i < this.totalLadders ; i++) {
       console.log("another ");
       this.addLaddersToBoard();
     }
+    // // Using the code below, we can check which cells don't have any ladders (cells 0 and 101 will not have any ladders).
+    // for (let i = 0; i < 102 ; i++) {
+    //   if( ! this.ladderTopCellsExits[i] && ! this.ladderBottomCellsExits[i]  )
+    //   console.log(" ind " , i , this.ladderTopCellsExits[i] , " " , this.ladderBottomCellsExits[i] ) ;
+    // }
 
+
+    
     // //  now add the snakes after getting the input from the secondScreen
     // //  now add the snakes after getting the input from the secondScreen
     // for(let i=0; i<5; i++)
@@ -297,14 +301,15 @@ export class createBoard extends Component {
   }
 
   addLaddersToBoard() {
-    console.log(" add ladder function ");
-    let cell1 = randomRangeInt(1, 100);
-    let cell2 = randomRangeInt(1, 100);
+    // console.log(" add ladder function ");
+    let cell1 = randomRangeInt(1, 101);
+    let cell2 = randomRangeInt(1, 101);
     let topCell = Math.max(cell1, cell2);
     let bottomCell = Math.min(cell1, cell2);
-    while (Math.abs(cell1 - cell2) <= 10 || this.checkLadderAndSnake(topCell, bottomCell)) {
-      cell1 = randomRangeInt(1, 100);
-      cell2 = randomRangeInt(1, 100);
+    while (Math.abs(cell1 - cell2) < 10 || this.checkLadderAndSnake(topCell, bottomCell)) {
+      // if( cell1 > 100 || cell2 > 100 ) console.log( " out out out "  , cell1 , cell2 ) ;
+      cell1 = randomRangeInt(1, 101);
+      cell2 = randomRangeInt(1, 101);
       topCell = Math.max(cell1, cell2);
       bottomCell = Math.min(cell1, cell2);
     }
@@ -317,7 +322,7 @@ export class createBoard extends Component {
     this.ladderTopCellsExits[topCell] = bottomCell;
     this.ladderBottomCellsExits[bottomCell] = topCell;
 
-    console.log("top ", topCell, "bottom ", bottomCell);
+    // console.log("top ", topCell, "bottom ", bottomCell);
 
     let topcellPositionLocal = this.cellNodesMap.get(topCell.toString()).getWorldPosition();
     let topcellPositionWorld = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(topcellPositionLocal);
@@ -338,7 +343,7 @@ export class createBoard extends Component {
     let angleRadians = Math.atan2(dy, dx);
     let angleDegrees = angleRadians * (180 / Math.PI);
     // console.log( "angleDegrees => " , angleRadians * (180 / Math.PI) , "  degee" , angleDegrees   ) ;
-
+  
     // //  1st way  make sprite type  Tiled and then jsut change the contentn size height
     let fullLadderNode = instantiate(this.ladderPartPrefab);
     let fullLadderNodeWidth = fullLadderNode.getComponent(Sprite).spriteFrame.width;
@@ -389,13 +394,13 @@ export class createBoard extends Component {
 
   addSnakesToBoard() {
     console.log(" add snakes function =============>  ");
-    let cell1 = randomRangeInt(1, 100);
-    let cell2 = randomRangeInt(1, 100);
+    let cell1 = randomRangeInt(1, 101);
+    let cell2 = randomRangeInt(1, 101);
     let topCell = Math.max(cell1, cell2);
     let bottomCell = Math.min(cell1, cell2);
-    while (Math.abs(cell1 - cell2) <= 10 || this.checkLadderAndSnake(topCell, bottomCell)) {
-      cell1 = randomRangeInt(1, 100);
-      cell2 = randomRangeInt(1, 100);
+    while (Math.abs(cell1 - cell2) < 10 || this.checkLadderAndSnake(topCell, bottomCell)) {
+      cell1 = randomRangeInt(1, 101);
+      cell2 = randomRangeInt(1, 101);
       topCell = Math.max(cell1, cell2);
       bottomCell = Math.min(cell1, cell2);
     }
