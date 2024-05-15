@@ -887,7 +887,8 @@ export class createBoard extends Component {
       )
       .start();
   }
-
+ 
+  
   playerWinning(playerIndex: number) {
     console.log(" player winning function ", playerIndex);
     let windDialog = instantiate(this.winPrefab);
