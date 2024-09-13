@@ -118,10 +118,10 @@ export class createBoard extends Component {
   // private allLadder: Node[] = new Array();  // // //  for bounding box
 
   settingsButtom() {
-    console.log(" settigns button ");
+    // console.log(" settigns button ");
     let settingLayout = this.settingsImgButtom.getComponent(Layout);
     if (!this.isSettingOpens) {
-      console.log(" vertcal ");
+      // console.log(" vertcal ");
       settingLayout.type = Layout.Type.VERTICAL;
       settingLayout.verticalDirection = Layout.VerticalDirection.TOP_TO_BOTTOM;
       let spacing = 10;
@@ -149,12 +149,12 @@ export class createBoard extends Component {
   }
 
   restartGameToSecondScreen() {
-    console.log("restart Game To Second Screen");
+    // console.log("restart Game To Second Screen");
     Tween.stopAll();
     director.loadScene(playerSelectionScene);
   }
   exitGameToFirstScreen() {
-    console.log("exit screen first screen");
+    // console.log("exit screen first screen");
     Tween.stopAll();
     director.loadScene(loadScene);
   }
@@ -185,7 +185,7 @@ export class createBoard extends Component {
   // }
 
   newSnakeAddition() {
-    console.log("new  ladder ");
+    // console.log("new  ladder ");
     this.allsnakes.removeAllChildren();
     this.snakeTopCellsExits = [];
     this.snakeTopCellsExits.length = 102;
@@ -197,7 +197,7 @@ export class createBoard extends Component {
     }
   }
   newLadderAddition() {
-    console.log("new  ladder ");
+    // console.log("new  ladder ");
     this.allLadders.removeAllChildren();
     this.ladderTopCellsExits = [];
     this.ladderTopCellsExits.length = 102;
@@ -210,7 +210,7 @@ export class createBoard extends Component {
   }
 
   newSnakesOrLadderAddition(event: any, customEventData: any) {
-    console.log("new snakes or ladder addition ", event, customEventData);
+    // console.log("new snakes or ladder addition ", event, customEventData);
     switch (customEventData) {
       case "snake":
         this.newSnakeAddition();
@@ -225,7 +225,7 @@ export class createBoard extends Component {
   }
 
   start() {
-    console.log(" strt main scene screate board");
+    // console.log(" strt main scene screate board");
     this.player1Img.getComponent(Sprite).spriteFrame = Singleton.getInstance().playerOne;
     this.player2Img.getComponent(Sprite).spriteFrame = Singleton.getInstance().playerTwo;
 
@@ -263,7 +263,7 @@ export class createBoard extends Component {
     // //  now add the ladders after getting the input from the secondScreen
     // //  now add the ladders after getting the input from the secondScreen
     for (let i = 0; i < this.totalLadders ; i++) {
-      console.log("another ");
+      // console.log("another ");
       this.addLaddersToBoard();
     }
     // // Using the code below, we can check which cells don't have any ladders (cells 0 and 101 will not have any ladders).
@@ -278,7 +278,7 @@ export class createBoard extends Component {
     // //  now add the snakes after getting the input from the secondScreen
     // for(let i=0; i<5; i++)
     for (let i = 0; i < this.totalSnakes; i++) {
-      console.log("another ");
+      // console.log("another ");
       this.addSnakesToBoard();
     }
 
@@ -414,7 +414,7 @@ export class createBoard extends Component {
     this.snakeTopCellsExits[topCell] = bottomCell;
     this.snakeBottomCellsExits[bottomCell] = topCell;
 
-    console.log("sntop ", topCell, "snbottom ", bottomCell);
+    // console.log("sntop ", topCell, "snbottom ", bottomCell);
 
     let topcellPositionLocal = this.cellNodesMap.get(topCell.toString()).getWorldPosition();
     let topcellPositionWorld = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(topcellPositionLocal);
@@ -431,7 +431,7 @@ export class createBoard extends Component {
     // console.log( "ps bt => " , bottomcellPositionWorld.x , "dy=> ", bottomcellPositionWorld.y ) ;
     // console.log( "dx => " , dx , "dy=> ", dy ) ;
     let distance = Math.sqrt(dx * dx + dy * dy);
-    console.log("dis  ", distance, "  in integer ", Math.floor(distance));
+    // console.log("dis  ", distance, "  in integer ", Math.floor(distance));
     // // angle from bottom to top
     let angleRadians = Math.atan2(dy, dx);
     let angleDegrees = angleRadians * (180 / Math.PI);
@@ -448,17 +448,17 @@ export class createBoard extends Component {
     let snakeTailHeight = fullSnakeNodeBottom;
     let repetitionPartHeight = fullSnakeNodeHeight - snakeHeadHeight - snakeTailHeight;
     let noOfrepetitionOfImage = Math.floor((distance - snakeHeadHeight - snakeTailHeight) / repetitionPartHeight);
-    console.log(
-      repetitionPartHeight,
-      "  repetition   ",
-      noOfrepetitionOfImage,
-      " ok ",
-      repetitionPartHeight * noOfrepetitionOfImage
-    );
+    // console.log(
+    //   repetitionPartHeight,
+    //   "  repetition   ",
+    //   noOfrepetitionOfImage,
+    //   " ok ",
+    //   repetitionPartHeight * noOfrepetitionOfImage
+    // );
 
     let contentSizeHeight = snakeHeadHeight + repetitionPartHeight * noOfrepetitionOfImage + snakeTailHeight;
     fullSnakeNode.getComponent(UITransform).setContentSize(fullSnakeNodeWidth, contentSizeHeight);
-    console.log(contentSizeHeight, "  contentSizeHeight   ");
+    // console.log(contentSizeHeight, "  contentSizeHeight   ");
 
     // let diff = distance - contentSizeHeight ;
     // if( diff < 25 ) diff = 0 ;
@@ -528,18 +528,18 @@ export class createBoard extends Component {
 
   player1rollDiceRandomaly(randomNumber: number) {
     this.diceRollMusic.play();
-    console.log(" player 1 roll dice randomly => ");
+    // console.log(" player 1 roll dice randomly => ");
     if (this.player1CurrCell == -1 && randomNumber != 6) {
       this.player1ArrowImg.active = false;
       this.player2ArrowImg.active = true;
       this.player1Turn = false;
       this.player2Turn = true;
-      console.log(" no move until 6 comes");
+      // console.log(" no move until 6 comes");
       return;
     }
     if (this.player1CurrCell == -1 && randomNumber == 6) {
       this.player1CurrCell = 0;
-      console.log(" ready to play ");
+      // console.log(" ready to play ");
       this.firstSixSound_GetReady.play();
       return;
     }
@@ -548,7 +548,7 @@ export class createBoard extends Component {
       this.player1SixCount++;
       if (this.player1SixCount == 1) this.player1SixPrevCell = this.player1CurrCell;
       else if (this.player1SixCount == 3) {
-        console.log(this.player1CurrCell, " strt three six animation ", this.player1SixPrevCell);
+        // console.log(this.player1CurrCell, " strt three six animation ", this.player1SixPrevCell);
         this.threeSixAnimation(this.player1Img, this.player1CurrCell - 1, this.player1SixPrevCell, 1);
         return;
       }
@@ -570,18 +570,18 @@ export class createBoard extends Component {
 
   player2rollDiceRandomaly(randomNumber: number) {
     this.diceRollMusic.play();
-    console.log(" player 2 roll dice randomly => ");
+    // console.log(" player 2 roll dice randomly => ");
     if (this.player2CurrCell == -1 && randomNumber != 6) {
       this.player2ArrowImg.active = false;
       this.player1ArrowImg.active = true;
       this.player2Turn = false;
       this.player1Turn = true;
-      console.log(" no move until 6 comes");
+      // console.log(" no move until 6 comes");
       return;
     }
     if (this.player2CurrCell == -1 && randomNumber == 6) {
       this.player2CurrCell = 0;
-      console.log(" ready to play ");
+      // console.log(" ready to play ");
       this.firstSixSound_GetReady.play();
       return;
     }
@@ -590,7 +590,7 @@ export class createBoard extends Component {
       this.player2SixCount++;
       if (this.player2SixCount == 1) this.player2SixPrevCell = this.player2CurrCell;
       else if (this.player2SixCount == 3) {
-        console.log(this.player2CurrCell, " strt three six animation ", this.player2SixPrevCell);
+        // console.log(this.player2CurrCell, " strt three six animation ", this.player2SixPrevCell);
         this.threeSixAnimation(this.player2Img, this.player2CurrCell - 1, this.player2SixPrevCell, 1);
         return;
       }
@@ -612,7 +612,7 @@ export class createBoard extends Component {
 
   threeSixAnimation(playerImg: Node, playerCurrCell: number, playerPrevCell: number, playerindex: number) {
     this.playerMoveMusic.play();
-    console.log(" three six animation funciton ");
+    // console.log(" three six animation funciton ");
     if (playerindex == 1) this.player1CurrCell = playerCurrCell;
     else this.player2CurrCell = playerCurrCell;
     let playerCurrCellPositionX = playerImg.position.x;
@@ -622,7 +622,7 @@ export class createBoard extends Component {
     let NextCellPosition = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(worldpos);
     let NextCellPositionX = NextCellPosition.x;
     let NextCellPositionY = NextCellPosition.y;
-    console.log("currCell ", playerCurrCell);
+    // console.log("currCell ", playerCurrCell);
     tween(playerImg)
       .to(0.1, { position: new Vec3(playerCurrCellPositionX, playerCurrCellPositionY + 10) })
       .to(0.2, { position: new Vec3(NextCellPositionX, NextCellPositionY + 10) })
@@ -634,7 +634,7 @@ export class createBoard extends Component {
 
           onComplete: () => {
             this.playerMoveMusic.stop();
-            console.log("currCell ", playerCurrCell, " prev ", playerPrevCell);
+            // console.log("currCell ", playerCurrCell, " prev ", playerPrevCell);
             if (playerCurrCell == playerPrevCell) {
               this.isAnimating = false;
               this.player1Turn = false;
@@ -651,36 +651,36 @@ export class createBoard extends Component {
   }
 
   movePlayer1(diceNumber: number) {
-    console.log(" moveplayer1 fucntion ");
+    // console.log(" moveplayer1 fucntion ");
     let pl1currCell = this.player1CurrCell;
     let pl1FinalCell = this.player1CurrCell + diceNumber;
-    console.log("currCell ", pl1currCell, "  finalcell ", pl1FinalCell);
+    // console.log("currCell ", pl1currCell, "  finalcell ", pl1FinalCell);
     this.playerTweenAnimation(this.player1Img, pl1currCell + 1, pl1FinalCell, 1);
-    console.log("currCell print", this.player1CurrCell);
+    // console.log("currCell print", this.player1CurrCell);
   }
 
   movePlayer2(diceNumber: number) {
-    console.log(" moveplayer1 fucntion ");
+    // console.log(" moveplayer1 fucntion ");
     let pl2currCell = this.player2CurrCell;
     let pl2FinalCell = this.player2CurrCell + diceNumber;
-    console.log("currCell ", pl2currCell, "  finalcell ", pl2FinalCell);
+    // console.log("currCell ", pl2currCell, "  finalcell ", pl2FinalCell);
     this.playerTweenAnimation(this.player2Img, pl2currCell + 1, pl2FinalCell, 2);
-    console.log("currCell  print", this.player2CurrCell);
+    // console.log("currCell  print", this.player2CurrCell);
   }
 
   playerTweenAnimation(playerImg: Node, currCell: number, finalCell: number, playerindex: number) {
     if (currCell > 100) {
-      console.log("its a 101th cell ");
-      console.log(
-        "curr => ",
-        currCell,
-        " chn ",
-        currCell - 2,
-        " finalcell => ",
-        finalCell,
-        " steps ",
-        finalCell - currCell + 1
-      );
+      // console.log("its a 101th cell ");
+      // console.log(
+      //   "curr => ",
+      //   currCell,
+      //   " chn ",
+      //   currCell - 2,
+      //   " finalcell => ",
+      //   finalCell,
+      //   " steps ",
+      //   finalCell - currCell + 1
+      // );
       this.ifLastCell(playerImg, currCell - 2, finalCell - currCell + 1, playerindex);
       return;
     }
@@ -700,7 +700,7 @@ export class createBoard extends Component {
       //
       this.playerMoveMusic.stop();
       this.isAnimating = false;
-      console.log(" final curr  cell ", currCell - 1);
+      // console.log(" final curr  cell ", currCell - 1);
       if (this.ladderBottomCellsExits[currCell - 1])
         this.playerLadderClimbAnimation(playerImg, currCell - 1, playerindex);
       if (this.snakeTopCellsExits[currCell - 1]) this.playerSnakeBiteAnimation(playerImg, currCell - 1, playerindex);
@@ -769,7 +769,7 @@ export class createBoard extends Component {
     let posNode = this.cellNodesMap.get(currCell.toString());
     let worldpos = posNode.getWorldPosition();
     let pl1NextCellPosition = this.node.parent.getComponent(UITransform).convertToNodeSpaceAR(worldpos);
-    console.log("currCell ", currCell, "  remainingSteps ", remainingSteps);
+    // console.log("currCell ", currCell, "  remainingSteps ", remainingSteps);
     tween(playerImg)
       .to(
         1,
@@ -788,7 +788,7 @@ export class createBoard extends Component {
 
   playerLadderClimbAnimation(playerImg: Node, playerCell: number, playerindex: number) {
     this.ladderClimbMusic.play();
-    console.log(" Player ladder move animation ");
+    // console.log(" Player ladder move animation ");
     this.isAnimating = true;
     let laddeBottomCell = playerCell;
     let laddeTopCell = this.ladderBottomCellsExits[playerCell];
@@ -800,7 +800,7 @@ export class createBoard extends Component {
       .convertToNodeSpaceAR(laddeTopCellPosition);
     // if( playerindex == 1 ) this.player1CurrCell = laddeTopCell ;
     // else this.player2CurrCell = laddeTopCell ;
-    console.log("bot => ", laddeBottomCell, "top => ", laddeTopCell);
+    // console.log("bot => ", laddeBottomCell, "top => ", laddeTopCell);
     tween(playerImg)
       .to(
         3,
@@ -841,7 +841,7 @@ export class createBoard extends Component {
   }
 
   playerSnakeBiteAnimation(playerImg: Node, playerCell: number, playerindex: number) {
-    console.log(" Player snake bite animation ");
+    // console.log(" Player snake bite animation ");
     this.snakeBiteMusic.play();
     this.isAnimating = true;
     let snakeTopCell = playerCell;
@@ -852,7 +852,7 @@ export class createBoard extends Component {
       .convertToNodeSpaceAR(snakeBottomCellPosition);
     // if( playerindex == 1 ) this.player1CurrCell = laddeTopCell ;
     // else this.player2CurrCell = laddeTopCell ;
-    console.log("bot => ", snakeBottomCell, "top => ", snakeTopCell);
+    // console.log("bot => ", snakeBottomCell, "top => ", snakeTopCell);
     tween(playerImg)
       .to(0.3, { scale: new Vec3(1.1, 1.1, 1.1) })
       .to(1, { scale: new Vec3(0, 0, 0) })
@@ -863,7 +863,7 @@ export class createBoard extends Component {
         {
           easing: "quadInOut",
           onComplete: () => {
-            console.log(" Player snake bite move animation ");
+            // console.log(" Player snake bite move animation ");
             this.isAnimating = false;
             this.snakeBiteMusic.stop();
             if (playerindex == 1) this.player1CurrCell = snakeBottomCell;
@@ -887,9 +887,11 @@ export class createBoard extends Component {
       )
       .start();
   }
+ 
 
+  
   playerWinning(playerIndex: number) {
-    console.log(" player winning function ", playerIndex);
+    // console.log(" player winning function ", playerIndex);
     let windDialog = instantiate(this.winPrefab);
     let playAgain = windDialog.getChildByName(playAgainButton);
     playAgain.addComponent(Button);
